@@ -18,6 +18,14 @@ export default function App() {
           element: <Home />,
         },
         {
+          path: "register",
+          element: <Register />,
+        },
+        {
+          path: "login",
+          element: <Login />,
+        },
+        {
           element: <AuthLayout />,
           children: [
             {
@@ -25,14 +33,6 @@ export default function App() {
               element: <Dashboard />,
             },
           ],
-        },
-        {
-          path: "register",
-          element: <Register />,
-        },
-        {
-          path: "login",
-          element: <Login />,
         },
       ],
     },
