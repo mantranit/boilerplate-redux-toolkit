@@ -4,7 +4,6 @@ import Button from "../../components/Button";
 import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { setRole, setUserCredential } from "../../../redux/authSlice";
-import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 
 type Props = {};
@@ -32,6 +31,7 @@ const AuthLayout = (props: Props) => {
       } else {
         localStorage.removeItem("token");
         dispatch(setUserCredential(null));
+        dispatch(setRole("user"));
         navigate("/login");
       }
     });
@@ -44,6 +44,7 @@ const AuthLayout = (props: Props) => {
     signOut(auth).finally(() => {
       localStorage.removeItem("token");
       dispatch(setUserCredential(null));
+      dispatch(setRole("user"));
       navigate("/login");
     });
   };
@@ -51,7 +52,7 @@ const AuthLayout = (props: Props) => {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2>Hello, {user?.displayName || user?.email}</h2>
+        <h2 className="m-0">Hello, {user?.displayName || user?.email}</h2>
         <Button onClick={handleLogout}>Logout</Button>
       </div>
       <Outlet />

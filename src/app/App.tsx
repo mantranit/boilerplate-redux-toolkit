@@ -54,7 +54,7 @@ export default function App() {
   ]);
 
   return (
-    <div className="max-w-lg m-auto p-4">
+    <div className="p-4">
       <div className="border border-solid border-slate-300 p-5 rounded-lg">
         <RouterProvider router={router} />
       </div>
