@@ -8,6 +8,7 @@ import {
   getFirestore,
   orderBy,
   query,
+  Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -80,16 +81,18 @@ const Bet = (props: Props) => {
     setMatchs(listMatchs);
   };
 
-  const handleUpdateBet = async (match_id: any, bet_id: any, bet: string) => {
-    if (bet_id) {
-      await updateDoc(doc(db, "bets", bet_id), {
+  const handleUpdateBet = async (match: any, bet: string) => {
+    if (match.bet_id) {
+      await updateDoc(doc(db, "bets", match.bet_id), {
         bet,
+        modifiedAt: Timestamp.fromDate(new Date()),
       });
     } else {
       await addDoc(collection(db, "bets"), {
         bet,
-        match_id,
+        match_id: match.id,
         user_id: auth.currentUser?.uid,
+        modifiedAt: Timestamp.fromDate(new Date()),
       });
     }
     fetchData();
@@ -128,7 +131,7 @@ const Bet = (props: Props) => {
                     <Checkbox
                       checked={match.bet === "homeName"}
                       onClick={() => {
-                        handleUpdateBet(match.id, match.bet_id, "homeName");
+                        handleUpdateBet(match, "homeName");
                       }}
                     />
                   )}
@@ -142,7 +145,7 @@ const Bet = (props: Props) => {
                     <Checkbox
                       checked={match.bet === "awayName"}
                       onClick={() => {
-                        handleUpdateBet(match.id, match.bet_id, "awayName");
+                        handleUpdateBet(match, "awayName");
                       }}
                     />
                   )}
