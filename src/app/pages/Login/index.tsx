@@ -36,7 +36,7 @@ const Login = (props: Props) => {
         dispatch(setRole(decode.role));
         localStorage.setItem("token", token);
         toast.success("Login successful.");
-        navigate("/dashboard");
+        navigate("/");
       })
       .catch((error) => {
         toast.error(error.message);

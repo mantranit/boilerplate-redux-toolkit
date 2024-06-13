@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useFirebaseApp } from "../../contexts/FirebaseProvider";
 import {
+  addDoc,
   collection,
+  doc,
   getDocs,
   getFirestore,
   orderBy,
   query,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 import {
+  Checkbox,
   Table,
   TableBody,
   TableCell,
@@ -15,14 +20,24 @@ import {
   TableRow,
 } from "@mui/material";
 import moment from "moment";
+import { getAuth } from "firebase/auth";
 
-const fields = ["date", "hour", "homeName", "awayName", "forecast", "result"];
+const fields = [
+  "date",
+  "hour",
+  "homeName",
+  "awayName",
+  "forecast",
+  "result",
+  "deposit",
+];
 
 type Props = {};
 
 const Bet = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
+  const auth = getAuth();
   const [matchs, setMatchs] = useState<any[]>([]);
 
   useEffect(() => {
@@ -30,45 +45,115 @@ const Bet = (props: Props) => {
   }, []);
 
   const fetchData = async () => {
-    const querySnapshot = await getDocs(
+    let querySnapshot = await getDocs(
       query(collection(db, "matchs"), orderBy("time"))
     );
-    const list: any[] = [];
+    let listMatchs: any[] = [];
     querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      const datetime = moment(data.time.seconds * 1000);
-      list.push({
-        ...data,
+      const dataMatchs = doc.data();
+      const datetime = moment(dataMatchs.time.seconds * 1000);
+      listMatchs.push({
+        ...dataMatchs,
         id: doc.id,
         date: datetime.format("dddd, Do MMMM"),
         hour: datetime.format("HH:mm"),
+        datetime,
       });
-      console.log(doc.id, " => ", doc.data());
     });
-    setMatchs(list);
+
+    querySnapshot = await getDocs(
+      query(
+        collection(db, "bets"),
+        where("user_id", "==", auth.currentUser?.uid)
+      )
+    );
+
+    querySnapshot.forEach((doc) => {
+      const dataBet = doc.data();
+      listMatchs = listMatchs.map((match) => {
+        if (match.id === dataBet.match_id) {
+          return { ...match, bet: dataBet.bet, bet_id: doc.id };
+        }
+        return match;
+      });
+    });
+    setMatchs(listMatchs);
   };
+
+  const handleUpdateBet = async (match_id: any, bet_id: any, bet: string) => {
+    if (bet_id) {
+      await updateDoc(doc(db, "bets", bet_id), {
+        bet,
+      });
+    } else {
+      await addDoc(collection(db, "bets"), {
+        bet,
+        match_id,
+        user_id: auth.currentUser?.uid,
+      });
+    }
+    fetchData();
+  };
+
+  const calcDeposit = (match: any) => {
+    console.log(match);
+  };
+
   return (
     <div>
       <Table className="border border-solid border-[#e0e0e0]">
         <TableHead>
           <TableRow>
-            <TableCell style={{ width: 170 }}>Date</TableCell>
+            <TableCell style={{ width: 200 }}>Date</TableCell>
             <TableCell>Hour</TableCell>
-            <TableCell>Home</TableCell>
-            <TableCell>Away</TableCell>
+            <TableCell>
+              <p className="m-0 ml-3">Home</p>
+            </TableCell>
+            <TableCell>
+              <p className="m-0 ml-3">Away</p>
+            </TableCell>
             <TableCell>Forecast</TableCell>
             <TableCell>Result</TableCell>
+            <TableCell>Deposit</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {matchs.map((match, rowIndex) => {
             return (
               <TableRow key={match.id}>
-                {fields.map((field, colIndex) => {
-                  return (
-                    <TableCell key={match.id + field}>{match[field]}</TableCell>
-                  );
-                })}
+                <TableCell>{match.date}</TableCell>
+                <TableCell>{match.hour}</TableCell>
+                <TableCell>
+                  {moment().isBefore(match.datetime) && (
+                    <Checkbox
+                      checked={match.bet === "homeName"}
+                      onClick={() => {
+                        handleUpdateBet(match.id, match.bet_id, "homeName");
+                      }}
+                    />
+                  )}
+                  {moment().isSameOrAfter(match.datetime) && (
+                    <Checkbox checked={match.bet === "homeName"} disabled />
+                  )}
+                  {match.homeName}
+                </TableCell>
+                <TableCell>
+                  {moment().isBefore(match.datetime) && (
+                    <Checkbox
+                      checked={match.bet === "awayName"}
+                      onClick={() => {
+                        handleUpdateBet(match.id, match.bet_id, "awayName");
+                      }}
+                    />
+                  )}
+                  {moment().isSameOrAfter(match.datetime) && (
+                    <Checkbox checked={match.bet === "awayName"} disabled />
+                  )}
+                  {match.awayName}
+                </TableCell>
+                <TableCell>{match.forecast}</TableCell>
+                <TableCell>{match.result}</TableCell>
+                <TableCell></TableCell>
               </TableRow>
             );
           })}

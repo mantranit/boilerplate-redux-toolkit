@@ -36,7 +36,7 @@ const Register = (props: Props) => {
         dispatch(setRole(decode.role));
         localStorage.setItem("token", token);
         toast.success("Register successful.");
-        navigate("/dashboard");
+        navigate("/");
       })
       .catch((error) => {
         toast.error(error.message);

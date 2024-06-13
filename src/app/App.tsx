@@ -3,9 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import AuthLayout from "./layouts/AuthLayout";
-import Home from "./pages/Home";
 import FirebaseProvider from "./contexts/FirebaseProvider";
 import Bet from "./pages/Bet";
 
@@ -14,10 +12,6 @@ export default function App() {
     {
       path: "/",
       children: [
-        {
-          path: "/",
-          element: <Home />,
-        },
         {
           path: "register",
           element: <Register />,
@@ -30,11 +24,7 @@ export default function App() {
           element: <AuthLayout />,
           children: [
             {
-              path: "dashboard",
-              element: <Dashboard />,
-            },
-            {
-              path: "bet",
+              path: "/",
               element: <Bet />,
             },
           ],
@@ -45,11 +35,9 @@ export default function App() {
 
   return (
     <div className="p-4">
-      <div className="border border-solid border-slate-300 p-5 rounded-lg">
-        <FirebaseProvider>
-          <RouterProvider router={router} />
-        </FirebaseProvider>
-      </div>
+      <FirebaseProvider>
+        <RouterProvider router={router} />
+      </FirebaseProvider>
     </div>
   );
 }
