@@ -8,25 +8,32 @@ import {
   UserCredential,
 } from "firebase/auth";
 import { useAppDispatch } from "../../../redux/store";
-import { setUserCredential } from "../../../redux/authSlice";
+import { setRole, setUserCredential } from "../../../redux/authSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 type Props = {};
 
 const Login = (props: Props) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { control, handleSubmit } = useForm();
+  const { control, handleSubmit } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
   const handleOnSuccess = (data: any) => {
     const { email, password } = data;
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential: UserCredential) => {
-        console.log(userCredential);
         const user = userCredential.user.toJSON();
         const token = await userCredential.user.getIdToken(false);
+        const decode: any = jwtDecode(token);
         dispatch(setUserCredential(user));
+        dispatch(setRole(decode.role));
         localStorage.setItem("token", token);
         toast.success("Login successful.");
         navigate("/dashboard");
@@ -55,10 +62,11 @@ const Login = (props: Props) => {
           name="password"
           label="Password"
         />
-        <div>
+        <div className="flex gap-5">
           <Button type="submit" variant="contained">
             Login
           </Button>
+          <Button onClick={() => navigate("/register")}>Register</Button>
         </div>
       </div>
     </form>

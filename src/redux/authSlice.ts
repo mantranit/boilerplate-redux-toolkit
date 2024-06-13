@@ -4,11 +4,13 @@ import { register } from "../services/authServices";
 interface IAuthState {
   register: "idle" | "pending" | "succeeded" | "failed";
   userCredential: any;
+  role: string;
 }
 
 const initialState: IAuthState = {
   register: "idle",
   userCredential: null,
+  role: "user",
 };
 
 const authSlice = createSlice({
@@ -17,6 +19,9 @@ const authSlice = createSlice({
   reducers: {
     setUserCredential: (state, action) => {
       state.userCredential = action.payload;
+    },
+    setRole: (state, action) => {
+      state.role = action.payload;
     },
   },
   extraReducers(builder) {
@@ -32,6 +37,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUserCredential } = authSlice.actions;
+export const { setUserCredential, setRole } = authSlice.actions;
 
 export default authSlice.reducer;

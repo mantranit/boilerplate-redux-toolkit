@@ -3,8 +3,9 @@ import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { setUserCredential } from "../../../redux/authSlice";
+import { setRole, setUserCredential } from "../../../redux/authSlice";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
 type Props = {};
 
@@ -21,9 +22,13 @@ const AuthLayout = (props: Props) => {
   const auth = getAuth();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        dispatch(setUserCredential(user.toJSON()));
+    const unsubscribe = onAuthStateChanged(auth, async (userCredential) => {
+      if (userCredential) {
+        const user = userCredential.toJSON();
+        const token = await userCredential.getIdToken(false);
+        const decode: any = jwtDecode(token);
+        dispatch(setUserCredential(user));
+        dispatch(setRole(decode.role));
       } else {
         localStorage.removeItem("token");
         dispatch(setUserCredential(null));

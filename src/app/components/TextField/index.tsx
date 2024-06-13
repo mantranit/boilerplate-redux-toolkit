@@ -3,7 +3,7 @@ import { TextField as MuiTextField, TextFieldProps } from "@mui/material";
 import { Control, Controller } from "react-hook-form";
 
 type Props = {
-  control?: Control;
+  control?: Control<any>;
   rules?: any;
   name: string;
 } & TextFieldProps;
