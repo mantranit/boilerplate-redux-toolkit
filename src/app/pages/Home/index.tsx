@@ -6,7 +6,7 @@ type Props = {};
 
 const Home = (props: Props) => {
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center">
       <div className="w-full">
         <Button variant="contained" fullWidth href="/login" component={Link}>
           Login
