@@ -101,7 +101,6 @@ const Nations = (props: Props) => {
               ...formJson,
               flag: "",
               photo: "",
-              point: 0,
             });
             handleClose();
           },
@@ -114,19 +113,7 @@ const Nations = (props: Props) => {
             <TextField required name="country" label="Country" />
             <TextField required name="code" label="Code" />
             <TextField required name="name" label="Name" />
-            <FormControl fullWidth required>
-              <InputLabel id="demo-simple-select-label">Group</InputLabel>
-              <Select label="Group">
-                <MenuItem value="A">A</MenuItem>
-                <MenuItem value="B">B</MenuItem>
-                <MenuItem value="C">C</MenuItem>
-                <MenuItem value="D">D</MenuItem>
-                <MenuItem value="E">E</MenuItem>
-                <MenuItem value="F">F</MenuItem>
-                <MenuItem value="G">G</MenuItem>
-                <MenuItem value="H">H</MenuItem>
-              </Select>
-            </FormControl>
+            <TextField name="flag" label="Flag" />
           </div>
         </DialogContent>
         <DialogActions>

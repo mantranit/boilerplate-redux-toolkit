@@ -10,12 +10,11 @@ const DataGrid = (props: Props) => {
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 5,
+              pageSize: 25,
             },
           },
         }}
-        pageSizeOptions={[5]}
-        checkboxSelection
+        pageSizeOptions={[10, 25, 50, 100]}
         disableRowSelectionOnClick
         {...props}
       />

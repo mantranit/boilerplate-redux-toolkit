@@ -6,8 +6,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import AuthLayout from "./layouts/AuthLayout";
 import Home from "./pages/Home";
-import Nations from "./pages/Nations";
 import FirebaseProvider from "./contexts/FirebaseProvider";
+import Bet from "./pages/Bet";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -34,8 +34,8 @@ export default function App() {
               element: <Dashboard />,
             },
             {
-              path: "nations",
-              element: <Nations />,
+              path: "bet",
+              element: <Bet />,
             },
           ],
         },
