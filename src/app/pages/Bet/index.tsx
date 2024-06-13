@@ -85,14 +85,14 @@ const Bet = (props: Props) => {
     if (match.bet_id) {
       await updateDoc(doc(db, "bets", match.bet_id), {
         bet,
-        modifiedAt: Timestamp.fromDate(new Date()),
+        lastModifiedAt: Timestamp.fromDate(new Date(match.datetime)),
       });
     } else {
       await addDoc(collection(db, "bets"), {
         bet,
         match_id: match.id,
         user_id: auth.currentUser?.uid,
-        modifiedAt: Timestamp.fromDate(new Date()),
+        lastModifiedAt: Timestamp.fromDate(new Date(match.datetime)),
       });
     }
     fetchData();
