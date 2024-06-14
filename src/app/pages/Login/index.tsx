@@ -43,33 +43,44 @@ const Login = (props: Props) => {
       });
   };
   return (
-    <form onSubmit={handleSubmit(handleOnSuccess)}>
-      <div className="flex flex-col gap-5">
-        <TextField
-          control={control}
-          rules={{
-            required: "This field is required.",
-          }}
-          name="email"
-          label="Email"
+    <div>
+      <div className="text-center p-6">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/vi/thumb/b/b2/Logo_Gi%E1%BA%A3i_v%C3%B4_%C4%91%E1%BB%8Bch_b%C3%B3ng_%C4%91%C3%A1_ch%C3%A2u_%C3%82u_2024.png/220px-Logo_Gi%E1%BA%A3i_v%C3%B4_%C4%91%E1%BB%8Bch_b%C3%B3ng_%C4%91%C3%A1_ch%C3%A2u_%C3%82u_2024.png"
+          alt=""
+          width={120}
         />
-        <TextField
-          control={control}
-          rules={{
-            required: "This field is required.",
-          }}
-          type="password"
-          name="password"
-          label="Password"
-        />
-        <div className="flex gap-5">
-          <Button type="submit" variant="contained">
-            Login
-          </Button>
-          <Button onClick={() => navigate("/register")}>Register</Button>
-        </div>
       </div>
-    </form>
+      <form onSubmit={handleSubmit(handleOnSuccess)}>
+        <div className="max-w-80 m-auto">
+          <TextField
+            className="mb-6"
+            control={control}
+            rules={{
+              required: "This field is required.",
+            }}
+            name="email"
+            label="Email"
+          />
+          <TextField
+            className="mb-6"
+            control={control}
+            rules={{
+              required: "This field is required.",
+            }}
+            type="password"
+            name="password"
+            label="Password"
+          />
+          <div className="flex gap-5">
+            <Button type="submit" variant="contained">
+              Login
+            </Button>
+            <Button onClick={() => navigate("/register")}>Register</Button>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 };
 
