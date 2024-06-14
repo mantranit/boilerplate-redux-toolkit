@@ -82,6 +82,8 @@ const Bet = (props: Props) => {
     if (match.bet_id) {
       await updateDoc(doc(db, "bets", match.bet_id), {
         bet,
+        match_id: match.id,
+        user_id: auth.currentUser?.uid,
       });
     } else {
       await addDoc(collection(db, "bets"), {
