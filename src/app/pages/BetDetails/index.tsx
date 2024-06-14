@@ -83,6 +83,7 @@ const BetDetails = (props: Props) => {
         <div className="flex flex-col gap-5">
           <div className="flex gap-5">
             <TextField
+              disabled={moment().isSameOrAfter(watch("time"))}
               control={control}
               rules={{
                 required: "This field is required.",
@@ -91,6 +92,7 @@ const BetDetails = (props: Props) => {
               label="Home Team"
             />
             <TextField
+              disabled={moment().isSameOrAfter(watch("time"))}
               control={control}
               rules={{
                 required: "This field is required.",
@@ -105,8 +107,10 @@ const BetDetails = (props: Props) => {
               label="Time"
               value={watch("time")}
               onChange={(newValue) => setValue("time", newValue!)}
+              disabled={moment().isSameOrAfter(watch("time"))}
             />
             <TextField
+              disabled={moment().isSameOrAfter(watch("time"))}
               control={control}
               rules={{
                 required: "This field is required.",
@@ -116,7 +120,7 @@ const BetDetails = (props: Props) => {
             />
           </div>
           <div className="flex gap-5">
-            <TextField control={control} name="forecast" label="Forecast" />
+            <TextField disabled={moment().isSameOrAfter(watch("time"))} control={control} name="forecast" label="Forecast" />
             <TextField control={control} name="result" label="Result" />
           </div>
           <div className="flex gap-5">
