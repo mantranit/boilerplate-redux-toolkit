@@ -45,12 +45,10 @@ export default function App() {
   ]);
 
   return (
-    <div className="p-4">
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <FirebaseProvider>
-          <RouterProvider router={router} />
-        </FirebaseProvider>
-      </LocalizationProvider>
-    </div>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
+      <FirebaseProvider>
+        <RouterProvider router={router} />
+      </FirebaseProvider>
+    </LocalizationProvider>
   );
 }

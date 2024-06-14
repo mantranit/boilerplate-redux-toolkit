@@ -78,7 +78,7 @@ const BetDetails = (props: Props) => {
   };
   return (
     <div>
-      <h2>Add a Match</h2>
+      <h2>{!!match_id ? "Edit" : "Add"} a Match</h2>
       <form onSubmit={handleSubmit(handleOnSuccess)}>
         <div className="flex flex-col gap-5">
           <div className="flex gap-5">
