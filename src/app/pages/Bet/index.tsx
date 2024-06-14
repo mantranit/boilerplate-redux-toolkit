@@ -107,6 +107,7 @@ const Bet = (props: Props) => {
     const forecastSub = forecastArr[0] - forecastArr[1];
     const resultSub = resultArr[0] - resultArr[1];
     if (
+      !match.bet ||
       (match.bet === "awayName" && forecastSub < resultSub) ||
       (match.bet === "homeName" && forecastSub > resultSub)
     ) {
@@ -130,6 +131,7 @@ const Bet = (props: Props) => {
       <Table className="border border-solid border-[#e0e0e0]">
         <TableHead>
           <TableRow>
+            <TableCell style={{ width: 20 }}></TableCell>
             <TableCell style={{ width: 200 }}>Date</TableCell>
             <TableCell>Hour</TableCell>
             <TableCell>
@@ -148,6 +150,7 @@ const Bet = (props: Props) => {
           {matchs.map((match, rowIndex) => {
             return (
               <TableRow key={match.id}>
+                <TableCell>{rowIndex + 1}</TableCell>
                 <TableCell>{match.date}</TableCell>
                 <TableCell>{match.hour}</TableCell>
                 <TableCell>
@@ -193,6 +196,13 @@ const Bet = (props: Props) => {
           })}
         </TableBody>
       </Table>
+      <div className="my-4">
+        {role === "admin" && (
+          <Button variant="contained" component={Link} href="/add">
+            Add Match
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

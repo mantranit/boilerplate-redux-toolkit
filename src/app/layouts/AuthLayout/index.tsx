@@ -11,6 +11,7 @@ import {
   Box,
   Container,
   IconButton,
+  Link,
   Menu,
   MenuItem,
   Toolbar,
@@ -75,15 +76,22 @@ const AuthLayout = (props: Props) => {
       <AppBar position="static">
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <img
-              src="https://upload.wikimedia.org/wikipedia/vi/thumb/b/b2/Logo_Gi%E1%BA%A3i_v%C3%B4_%C4%91%E1%BB%8Bch_b%C3%B3ng_%C4%91%C3%A1_ch%C3%A2u_%C3%82u_2024.png/220px-Logo_Gi%E1%BA%A3i_v%C3%B4_%C4%91%E1%BB%8Bch_b%C3%B3ng_%C4%91%C3%A1_ch%C3%A2u_%C3%82u_2024.png"
-              alt=""
-              width={40}
-            />
+            <Link href="/">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/vi/thumb/b/b2/Logo_Gi%E1%BA%A3i_v%C3%B4_%C4%91%E1%BB%8Bch_b%C3%B3ng_%C4%91%C3%A1_ch%C3%A2u_%C3%82u_2024.png/220px-Logo_Gi%E1%BA%A3i_v%C3%B4_%C4%91%E1%BB%8Bch_b%C3%B3ng_%C4%91%C3%A1_ch%C3%A2u_%C3%82u_2024.png"
+                alt=""
+                width={40}
+              />
+            </Link>
 
-            <Box
-              sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}
-            ></Box>
+            <Box sx={{ flexGrow: 1, paddingLeft: 4 }}>
+              <Button
+                onClick={() => navigate("/leaderboard")}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                Leaderboard
+              </Button>
+            </Box>
 
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">

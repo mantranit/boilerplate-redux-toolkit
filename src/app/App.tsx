@@ -9,6 +9,7 @@ import Bet from "./pages/Bet";
 import BetDetails from "./pages/BetDetails";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import Leaderboard from "./pages/Leaderboard";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -29,6 +30,10 @@ export default function App() {
             {
               path: "/",
               element: <Bet />,
+            },
+            {
+              path: "/leaderboard",
+              element: <Leaderboard />,
             },
             {
               path: "/add",
