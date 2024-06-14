@@ -37,7 +37,8 @@ const Bet = (props: Props) => {
   const auth = getAuth();
   const role = useAppSelector((state) => state.auth.role);
   const [matchs, setMatchs] = useState<any[]>([]);
-  let totalDeposit = 0;
+  const [totalDeposit, setTotalDeposit] = useState(0);
+
 
   useEffect(() => {
     fetchData();
@@ -48,6 +49,7 @@ const Bet = (props: Props) => {
       query(collection(db, "matchs"), orderBy("time"))
     );
     let listMatchs: any[] = [];
+    let sumDeposit = 0;
     querySnapshot.forEach((doc) => {
       const dataMatchs = doc.data();
       const datetime = moment(dataMatchs.time.seconds * 1000);
@@ -71,11 +73,18 @@ const Bet = (props: Props) => {
       const dataBet = doc.data();
       listMatchs = listMatchs.map((match) => {
         if (match.id === dataBet.match_id) {
-          return { ...match, bet: dataBet.bet, bet_id: doc.id };
+          const mapped = { ...match, bet: dataBet.bet, bet_id: doc.id, needDeposit: false};
+          const lossedMatch = findLossedMatch(mapped);
+          if (lossedMatch) {
+            mapped.needDeposit = true;
+            sumDeposit += lossedMatch.deposit;
+          }
+          return mapped ;
         }
         return match;
       });
     });
+    setTotalDeposit(sumDeposit);
     setMatchs(listMatchs);
   };
 
@@ -96,25 +105,30 @@ const Bet = (props: Props) => {
     fetchData();
   };
 
-  const calcDeposit = (match: any) => {
-    if (!match.result) {
-      return "-";
-    }
-    const forecastArr = match.forecast
+  const findLossedMatch = (match: any) => {
+    if (match.result) {
+      const forecastArr = match.forecast
       .split("-")
       .map((str: any) => parseFloat(str));
-    const resultArr = match.result
-      .split("-")
-      .map((str: any) => parseFloat(str));
+      const resultArr = match.result
+        .split("-")
+        .map((str: any) => parseFloat(str));
 
-    const forecastSub = forecastArr[0] - forecastArr[1];
-    const resultSub = resultArr[0] - resultArr[1];
-    if (
-      !match.bet ||
-      (match.bet === "awayName" && forecastSub < resultSub) ||
-      (match.bet === "homeName" && forecastSub > resultSub)
-    ) {
-      totalDeposit += match.deposit;
+      const forecastSub = forecastArr[0] - forecastArr[1];
+      const resultSub = resultArr[0] - resultArr[1];
+      if (
+        !match.bet ||
+        (match.bet === "awayName" && forecastSub < resultSub) ||
+        (match.bet === "homeName" && forecastSub > resultSub)
+      ) {
+        return match;
+      }
+    }
+    return null;
+  };
+
+  const calcDeposit = (match: any) => {
+    if (match.needDeposit) {
       return new Intl.NumberFormat("vn-VN", {
         style: "currency",
         currency: "VND",
