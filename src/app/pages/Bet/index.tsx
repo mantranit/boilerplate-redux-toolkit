@@ -37,6 +37,7 @@ const Bet = (props: Props) => {
   const auth = getAuth();
   const role = useAppSelector((state) => state.auth.role);
   const [matchs, setMatchs] = useState<any[]>([]);
+  let totalDeposit = 0;
 
   useEffect(() => {
     fetchData();
@@ -113,6 +114,7 @@ const Bet = (props: Props) => {
       (match.bet === "awayName" && forecastSub < resultSub) ||
       (match.bet === "homeName" && forecastSub > resultSub)
     ) {
+      totalDeposit += match.deposit;
       return new Intl.NumberFormat("vn-VN", {
         style: "currency",
         currency: "VND",
@@ -123,12 +125,21 @@ const Bet = (props: Props) => {
 
   return (
     <div>
-      <div className="my-4">
+      <div className="flex items-center justify-between my-4">
         {role === "admin" && (
           <Button variant="contained" component={Link} href="/add">
             Add Match
           </Button>
         )}
+        <div>
+          <h2>
+            Total: &nbsp;
+            {new Intl.NumberFormat("vn-VN", {
+              style: "currency",
+              currency: "VND",
+            }).format(totalDeposit)}
+          </h2>
+        </div>
       </div>
       <Table className="border border-solid border-[#e0e0e0]">
         <TableHead>
