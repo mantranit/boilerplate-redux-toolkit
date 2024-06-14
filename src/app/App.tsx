@@ -6,6 +6,9 @@ import Login from "./pages/Login";
 import AuthLayout from "./layouts/AuthLayout";
 import FirebaseProvider from "./contexts/FirebaseProvider";
 import Bet from "./pages/Bet";
+import BetDetails from "./pages/BetDetails";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -27,6 +30,14 @@ export default function App() {
               path: "/",
               element: <Bet />,
             },
+            {
+              path: "/add",
+              element: <BetDetails />,
+            },
+            {
+              path: "/matchs/:match_id",
+              element: <BetDetails />,
+            },
           ],
         },
       ],
@@ -35,9 +46,11 @@ export default function App() {
 
   return (
     <div className="p-4">
-      <FirebaseProvider>
-        <RouterProvider router={router} />
-      </FirebaseProvider>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <FirebaseProvider>
+          <RouterProvider router={router} />
+        </FirebaseProvider>
+      </LocalizationProvider>
     </div>
   );
 }

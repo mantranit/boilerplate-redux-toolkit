@@ -8,12 +8,13 @@ import {
   getFirestore,
   orderBy,
   query,
-  Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
 import {
   Checkbox,
+  IconButton,
+  Link,
   Table,
   TableBody,
   TableCell,
@@ -22,13 +23,19 @@ import {
 } from "@mui/material";
 import moment from "moment";
 import { getAuth } from "firebase/auth";
+import { useAppSelector } from "../../../redux/store";
+import Button from "../../components/Button";
+import { Edit } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 type Props = {};
 
 const Bet = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
+  const navigate = useNavigate();
   const auth = getAuth();
+  const role = useAppSelector((state) => state.auth.role);
   const [matchs, setMatchs] = useState<any[]>([]);
 
   useEffect(() => {
@@ -91,10 +98,10 @@ const Bet = (props: Props) => {
       return "-";
     }
     const forecastArr = match.forecast
-      .split(" - ")
+      .split("-")
       .map((str: any) => parseFloat(str));
     const resultArr = match.result
-      .split(" - ")
+      .split("-")
       .map((str: any) => parseFloat(str));
 
     const forecastSub = forecastArr[0] - forecastArr[1];
@@ -113,6 +120,13 @@ const Bet = (props: Props) => {
 
   return (
     <div>
+      <div className="my-4">
+        {role === "admin" && (
+          <Button variant="contained" component={Link} href="/add">
+            Add Match
+          </Button>
+        )}
+      </div>
       <Table className="border border-solid border-[#e0e0e0]">
         <TableHead>
           <TableRow>
@@ -127,6 +141,7 @@ const Bet = (props: Props) => {
             <TableCell>Forecast</TableCell>
             <TableCell>Result</TableCell>
             <TableCell>Deposit</TableCell>
+            {role === "admin" && <TableCell style={{ width: 50 }}></TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -166,6 +181,13 @@ const Bet = (props: Props) => {
                 <TableCell>{match.forecast}</TableCell>
                 <TableCell>{match.result}</TableCell>
                 <TableCell>{calcDeposit(match)}</TableCell>
+                {role === "admin" && (
+                  <TableCell>
+                    <IconButton onClick={() => navigate(`/matchs/${match.id}`)}>
+                      <Edit fontSize="small" color="primary" />
+                    </IconButton>
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}
