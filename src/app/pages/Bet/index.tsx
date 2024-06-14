@@ -23,16 +23,6 @@ import {
 import moment from "moment";
 import { getAuth } from "firebase/auth";
 
-const fields = [
-  "date",
-  "hour",
-  "homeName",
-  "awayName",
-  "forecast",
-  "result",
-  "deposit",
-];
-
 type Props = {};
 
 const Bet = (props: Props) => {
@@ -85,21 +75,40 @@ const Bet = (props: Props) => {
     if (match.bet_id) {
       await updateDoc(doc(db, "bets", match.bet_id), {
         bet,
-        lastModifiedAt: Timestamp.fromDate(new Date(match.datetime)),
       });
     } else {
       await addDoc(collection(db, "bets"), {
         bet,
         match_id: match.id,
         user_id: auth.currentUser?.uid,
-        lastModifiedAt: Timestamp.fromDate(new Date(match.datetime)),
       });
     }
     fetchData();
   };
 
   const calcDeposit = (match: any) => {
-    console.log(match);
+    if (!match.result) {
+      return "-";
+    }
+    const forecastArr = match.forecast
+      .split(" - ")
+      .map((str: any) => parseFloat(str));
+    const resultArr = match.result
+      .split(" - ")
+      .map((str: any) => parseFloat(str));
+
+    const forecastSub = forecastArr[0] - forecastArr[1];
+    const resultSub = resultArr[0] - resultArr[1];
+    if (
+      (match.bet === "awayName" && forecastSub < resultSub) ||
+      (match.bet === "homeName" && forecastSub > resultSub)
+    ) {
+      return new Intl.NumberFormat("vn-VN", {
+        style: "currency",
+        currency: "VND",
+      }).format(match.deposit);
+    }
+    return "-";
   };
 
   return (
@@ -156,7 +165,7 @@ const Bet = (props: Props) => {
                 </TableCell>
                 <TableCell>{match.forecast}</TableCell>
                 <TableCell>{match.result}</TableCell>
-                <TableCell></TableCell>
+                <TableCell>{calcDeposit(match)}</TableCell>
               </TableRow>
             );
           })}
