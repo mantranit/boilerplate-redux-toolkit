@@ -132,13 +132,13 @@ const Bet = (props: Props) => {
           </Button>
         )}
         <div>
-          <h2>
+          <h3>
             Total: &nbsp;
             {new Intl.NumberFormat("vn-VN", {
               style: "currency",
               currency: "VND",
             }).format(totalDeposit)}
-          </h2>
+          </h3>
         </div>
       </div>
       <Table className="border border-solid border-[#e0e0e0]">
