@@ -111,7 +111,6 @@ const Bet = (props: Props) => {
 
     const forecastSub = forecastArr[0] - forecastArr[1];
     const resultSub = resultArr[0] - resultArr[1];
-    console.error(match, match.bet, forecastSub, resultSub);
     if (
       !match.bet ||
       (match.bet === "awayName" && forecastSub < resultSub) ||
