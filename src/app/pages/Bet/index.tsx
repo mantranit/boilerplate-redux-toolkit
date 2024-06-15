@@ -38,7 +38,6 @@ const Bet = (props: Props) => {
   const auth = getAuth();
   const role = useAppSelector((state) => state.auth.role);
   const [matchs, setMatchs] = useState<any[]>([]);
-  const [totalDeposit, setTotalDeposit] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -58,7 +57,6 @@ const Bet = (props: Props) => {
         date: datetime.format("dddd, Do MMMM"),
         hour: datetime.format("HH:mm"),
         datetime,
-        needDeposit: true,
       });
     });
 
@@ -77,19 +75,12 @@ const Bet = (props: Props) => {
             ...match,
             bet: dataBet.bet,
             bet_id: doc.id,
-            needDeposit: !isLossedMatch(match),
           };
         }
         return match;
       });
     });
 
-    setTotalDeposit(
-      listMatchs
-        .filter((match) => match.result && match.needDeposit)
-        .map((match) => match.deposit)
-        .reduce((a, b) => a + b, 0)
-    );
     setMatchs(listMatchs);
   };
 
@@ -120,6 +111,7 @@ const Bet = (props: Props) => {
 
     const forecastSub = forecastArr[0] - forecastArr[1];
     const resultSub = resultArr[0] - resultArr[1];
+    console.error(match, match.bet, forecastSub, resultSub);
     if (
       !match.bet ||
       (match.bet === "awayName" && forecastSub < resultSub) ||
@@ -134,7 +126,7 @@ const Bet = (props: Props) => {
     if (!match.result) {
       return "-";
     }
-    if (match.result && match.needDeposit) {
+    if (match.result && isLossedMatch(match)) {
       return FormatCurrency(match.deposit);
     }
     return FormatCurrency(0);
@@ -149,7 +141,15 @@ const Bet = (props: Props) => {
           </Button>
         )}
         <div>
-          <h3>Total: &nbsp; {FormatCurrency(totalDeposit)}</h3>
+          <h3>
+            Total: &nbsp;{" "}
+            {FormatCurrency(
+              matchs
+                .filter((match) => match.result && match.needDeposit)
+                .map((match) => match.deposit)
+                .reduce((a, b) => a + b, 0)
+            )}
+          </h3>
         </div>
       </div>
       <Table className="border border-solid border-[#e0e0e0]">
@@ -172,6 +172,7 @@ const Bet = (props: Props) => {
         </TableHead>
         <TableBody>
           {matchs.map((match, rowIndex) => {
+            console.log(match);
             return (
               <TableRow key={match.id}>
                 <TableCell>{rowIndex + 1}</TableCell>
