@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import {
   Checkbox,
+  FormLabel,
   IconButton,
   Link,
   Table,
@@ -28,6 +29,7 @@ import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { FormatCurrency, isLossedMatch } from "../../utils";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 type Props = {};
 
@@ -39,6 +41,87 @@ const Bet = (props: Props) => {
   const role = useAppSelector((state) => state.auth.role);
   const [matchs, setMatchs] = useState<any[]>([]);
   const [bets, setBets] = useState<any[]>([]);
+
+  const columns: GridColDef<any[number]>[] = [
+    {
+      field: "id",
+      headerName: "#",
+      width: 10,
+      renderCell: (index) =>
+        index.api.getRowIndexRelativeToVisibleRows(index.row.id) + 1,
+    },
+    { field: "date", headerName: "Date", width: 200 },
+    { field: "hour", headerName: "Hour" },
+    {
+      field: "homeName",
+      headerName: "Home",
+      width: 200,
+      headerClassName: "!pl-6",
+      renderCell: (params) => {
+        return (
+          <>
+            <Checkbox
+              checked={params.row.bet === "homeName"}
+              disabled={moment().isSameOrAfter(params.row.datetime)}
+              onClick={() => {
+                handleUpdateBet(params.row, "homeName");
+              }}
+            />
+            <FormLabel>{params.value}</FormLabel>
+          </>
+        );
+      },
+    },
+    {
+      field: "awayName",
+      headerName: "Away",
+      width: 200,
+      headerClassName: "!pl-6",
+      renderCell: (params) => {
+        return (
+          <>
+            <Checkbox
+              checked={params.row.bet === "awayName"}
+              disabled={moment().isSameOrAfter(params.row.datetime)}
+              onClick={() => {
+                handleUpdateBet(params.row, "awayName");
+              }}
+            />
+            <FormLabel>{params.value}</FormLabel>
+          </>
+        );
+      },
+    },
+    { field: "forecast", headerName: "Forecast" },
+    { field: "result", headerName: "Result" },
+    {
+      field: "deposit",
+      headerName: "Deposit",
+      valueGetter: (value, row) => {
+        if (!row.result) {
+          return "-";
+        }
+        if (row.needDeposit) {
+          return value;
+        }
+        return 0;
+      },
+    },
+    {
+      field: "actions",
+      headerName: "",
+      renderCell: (params) => {
+        if (role === "admin") {
+          return (
+            <IconButton onClick={() => navigate(`/matchs/${params.row.id}`)}>
+              <Edit fontSize="small" color="primary" />
+            </IconButton>
+          );
+        }
+        return "";
+      },
+    },
+  ];
 
   useEffect(() => {
     fetchData();
@@ -76,6 +159,7 @@ const Bet = (props: Props) => {
   };
 
   const handleUpdateBet = async (match: any, bet: string) => {
+    console.log(match, bet);
     const updateMatch = {
       bet,
       match_id: match.id,
@@ -113,7 +197,8 @@ const Bet = (props: Props) => {
         if (userBet) {
           newMatch = {
             ...newMatch,
-            ...userBet,
+            bet: userBet.bet,
+            bet_id: userBet.id,
           };
         }
         return newMatch;
@@ -140,74 +225,15 @@ const Bet = (props: Props) => {
           </h3>
         </div>
       </div>
-      <Table className="border border-solid border-[#e0e0e0]">
-        <TableHead>
-          <TableRow>
-            <TableCell style={{ width: 20 }}></TableCell>
-            <TableCell style={{ width: 200 }}>Date</TableCell>
-            <TableCell>Hour</TableCell>
-            <TableCell>
-              <p className="m-0 ml-3">Home</p>
-            </TableCell>
-            <TableCell>
-              <p className="m-0 ml-3">Away</p>
-            </TableCell>
-            <TableCell>Forecast</TableCell>
-            <TableCell>Result</TableCell>
-            <TableCell>Deposit</TableCell>
-            {role === "admin" && <TableCell style={{ width: 50 }}></TableCell>}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {getRows(matchs, bets).map((match: any, rowIndex: number) => {
-            return (
-              <TableRow key={match.id}>
-                <TableCell>{rowIndex + 1}</TableCell>
-                <TableCell>{match.date}</TableCell>
-                <TableCell>{match.hour}</TableCell>
-                <TableCell>
-                  {moment().isBefore(match.datetime) && (
-                    <Checkbox
-                      checked={match.bet === "homeName"}
-                      onClick={() => {
-                        handleUpdateBet(match, "homeName");
-                      }}
-                    />
-                  )}
-                  {moment().isSameOrAfter(match.datetime) && (
-                    <Checkbox checked={match.bet === "homeName"} disabled />
-                  )}
-                  {match.homeName}
-                </TableCell>
-                <TableCell>
-                  {moment().isBefore(match.datetime) && (
-                    <Checkbox
-                      checked={match.bet === "awayName"}
-                      onClick={() => {
-                        handleUpdateBet(match, "awayName");
-                      }}
-                    />
-                  )}
-                  {moment().isSameOrAfter(match.datetime) && (
-                    <Checkbox checked={match.bet === "awayName"} disabled />
-                  )}
-                  {match.awayName}
-                </TableCell>
-                <TableCell>{match.forecast}</TableCell>
-                <TableCell>{match.result}</TableCell>
-                <TableCell>{calcDeposit(match)}</TableCell>
-                {role === "admin" && (
-                  <TableCell>
-                    <IconButton onClick={() => navigate(`/matchs/${match.id}`)}>
-                      <Edit fontSize="small" color="primary" />
-                    </IconButton>
-                  </TableCell>
-                )}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      <DataGrid
+        columns={columns}
+        rows={getRows(matchs, bets)}
+        disableColumnSorting
+        disableColumnFilter
+        disableColumnMenu
+        disableRowSelectionOnClick
+        disableMultipleRowSelection
+      />
       <div className="my-4">
         {role === "admin" && (
           <Button variant="contained" component={Link} href="/add">
