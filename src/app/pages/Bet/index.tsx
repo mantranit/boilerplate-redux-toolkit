@@ -27,6 +27,7 @@ import { useAppSelector } from "../../../redux/store";
 import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { FormatCurrency } from "../../utils";
 
 type Props = {};
 
@@ -39,7 +40,6 @@ const Bet = (props: Props) => {
   const [matchs, setMatchs] = useState<any[]>([]);
   const [totalDeposit, setTotalDeposit] = useState(0);
 
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -49,7 +49,6 @@ const Bet = (props: Props) => {
       query(collection(db, "matchs"), orderBy("time"))
     );
     let listMatchs: any[] = [];
-    let sumDeposit = 0;
     querySnapshot.forEach((doc) => {
       const dataMatchs = doc.data();
       const datetime = moment(dataMatchs.time.seconds * 1000);
@@ -59,6 +58,7 @@ const Bet = (props: Props) => {
         date: datetime.format("dddd, Do MMMM"),
         hour: datetime.format("HH:mm"),
         datetime,
+        needDeposit: true,
       });
     });
 
@@ -73,18 +73,23 @@ const Bet = (props: Props) => {
       const dataBet = doc.data();
       listMatchs = listMatchs.map((match) => {
         if (match.id === dataBet.match_id) {
-          const mapped = { ...match, bet: dataBet.bet, bet_id: doc.id, needDeposit: false};
-          const lossedMatch = findLossedMatch(mapped);
-          if (lossedMatch) {
-            mapped.needDeposit = true;
-            sumDeposit += lossedMatch.deposit;
-          }
-          return mapped ;
+          return {
+            ...match,
+            bet: dataBet.bet,
+            bet_id: doc.id,
+            needDeposit: !isLossedMatch(match),
+          };
         }
         return match;
       });
     });
-    setTotalDeposit(sumDeposit);
+
+    setTotalDeposit(
+      listMatchs
+        .filter((match) => match.result && match.needDeposit)
+        .map((match) => match.deposit)
+        .reduce((a, b) => a + b, 0)
+    );
     setMatchs(listMatchs);
   };
 
@@ -105,36 +110,34 @@ const Bet = (props: Props) => {
     fetchData();
   };
 
-  const findLossedMatch = (match: any) => {
-    if (match.result) {
-      const forecastArr = match.forecast
+  const isLossedMatch = (match: any) => {
+    const forecastArr = match.forecast
       .split("-")
       .map((str: any) => parseFloat(str));
-      const resultArr = match.result
-        .split("-")
-        .map((str: any) => parseFloat(str));
+    const resultArr = match.result
+      .split("-")
+      .map((str: any) => parseFloat(str));
 
-      const forecastSub = forecastArr[0] - forecastArr[1];
-      const resultSub = resultArr[0] - resultArr[1];
-      if (
-        !match.bet ||
-        (match.bet === "awayName" && forecastSub < resultSub) ||
-        (match.bet === "homeName" && forecastSub > resultSub)
-      ) {
-        return match;
-      }
+    const forecastSub = forecastArr[0] - forecastArr[1];
+    const resultSub = resultArr[0] - resultArr[1];
+    if (
+      !match.bet ||
+      (match.bet === "awayName" && forecastSub < resultSub) ||
+      (match.bet === "homeName" && forecastSub > resultSub)
+    ) {
+      return true;
     }
-    return null;
+    return false;
   };
 
   const calcDeposit = (match: any) => {
-    if (match.needDeposit) {
-      return new Intl.NumberFormat("vn-VN", {
-        style: "currency",
-        currency: "VND",
-      }).format(match.deposit);
+    if (!match.result) {
+      return "-";
     }
-    return "-";
+    if (match.result && match.needDeposit) {
+      return FormatCurrency(match.deposit);
+    }
+    return FormatCurrency(0);
   };
 
   return (
@@ -146,13 +149,7 @@ const Bet = (props: Props) => {
           </Button>
         )}
         <div>
-          <h3>
-            Total: &nbsp;
-            {new Intl.NumberFormat("vn-VN", {
-              style: "currency",
-              currency: "VND",
-            }).format(totalDeposit)}
-          </h3>
+          <h3>Total: &nbsp; {FormatCurrency(totalDeposit)}</h3>
         </div>
       </div>
       <Table className="border border-solid border-[#e0e0e0]">
