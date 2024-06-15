@@ -176,6 +176,8 @@ const Leaderboard = (props: Props) => {
         rows={getRows(users, matchs, bets)}
         disableColumnFilter
         disableColumnMenu
+        disableRowSelectionOnClick
+        disableMultipleRowSelection
       />
     </div>
   );
