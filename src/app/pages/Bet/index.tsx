@@ -27,7 +27,7 @@ import { useAppSelector } from "../../../redux/store";
 import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { FormatCurrency } from "../../utils";
+import { FormatCurrency, isLossedMatch } from "../../utils";
 
 type Props = {};
 
@@ -101,26 +101,6 @@ const Bet = (props: Props) => {
     fetchData();
   };
 
-  const isLossedMatch = (match: any) => {
-    const forecastArr = match.forecast
-      .split("-")
-      .map((str: any) => parseFloat(str));
-    const resultArr = match.result
-      .split("-")
-      .map((str: any) => parseFloat(str));
-
-    const forecastSub = forecastArr[0] - forecastArr[1];
-    const resultSub = resultArr[0] - resultArr[1];
-    if (
-      !match.bet ||
-      (match.bet === "awayName" && forecastSub < resultSub) ||
-      (match.bet === "homeName" && forecastSub > resultSub)
-    ) {
-      return true;
-    }
-    return false;
-  };
-
   const calcDeposit = (match: any) => {
     if (!match.result) {
       return "-";
@@ -144,7 +124,7 @@ const Bet = (props: Props) => {
             Total: &nbsp;{" "}
             {FormatCurrency(
               matchs
-                .filter((match) => match.result && match.needDeposit)
+                .filter((match) => match.result && isLossedMatch(match))
                 .map((match) => match.deposit)
                 .reduce((a, b) => a + b, 0)
             )}
@@ -171,7 +151,6 @@ const Bet = (props: Props) => {
         </TableHead>
         <TableBody>
           {matchs.map((match, rowIndex) => {
-            console.log(match);
             return (
               <TableRow key={match.id}>
                 <TableCell>{rowIndex + 1}</TableCell>
