@@ -51,8 +51,8 @@ const Leaderboard = (props: Props) => {
         ...dataUsers,
         id: doc.id,
       });
-      setUsers(listUsers);
     });
+    setUsers(listUsers);
 
     querySnapshot = await getDocs(
       query(collection(db, "matchs"), orderBy("time"))

@@ -38,6 +38,7 @@ const Bet = (props: Props) => {
   const auth = getAuth();
   const role = useAppSelector((state) => state.auth.role);
   const [matchs, setMatchs] = useState<any[]>([]);
+  const [bets, setBets] = useState<any[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -50,15 +51,12 @@ const Bet = (props: Props) => {
     let listMatchs: any[] = [];
     querySnapshot.forEach((doc) => {
       const dataMatchs = doc.data();
-      const datetime = moment(dataMatchs.time.seconds * 1000);
       listMatchs.push({
         ...dataMatchs,
         id: doc.id,
-        date: datetime.format("dddd, Do MMMM"),
-        hour: datetime.format("HH:mm"),
-        datetime,
       });
     });
+    setMatchs(listMatchs);
 
     querySnapshot = await getDocs(
       query(
@@ -66,37 +64,27 @@ const Bet = (props: Props) => {
         where("user_id", "==", auth.currentUser?.uid)
       )
     );
-
+    let listBets: any[] = [];
     querySnapshot.forEach((doc) => {
-      const dataBet = doc.data();
-      listMatchs = listMatchs.map((match) => {
-        if (match.id === dataBet.match_id) {
-          return {
-            ...match,
-            bet: dataBet.bet,
-            bet_id: doc.id,
-          };
-        }
-        return match;
+      const dataBets = doc.data();
+      listBets.push({
+        ...dataBets,
+        id: doc.id,
       });
     });
-
-    setMatchs(listMatchs);
+    setBets(listBets);
   };
 
   const handleUpdateBet = async (match: any, bet: string) => {
+    const updateMatch = {
+      bet,
+      match_id: match.id,
+      user_id: auth.currentUser?.uid,
+    };
     if (match.bet_id) {
-      await updateDoc(doc(db, "bets", match.bet_id), {
-        bet,
-        match_id: match.id,
-        user_id: auth.currentUser?.uid,
-      });
+      await updateDoc(doc(db, "bets", match.bet_id), updateMatch);
     } else {
-      await addDoc(collection(db, "bets"), {
-        bet,
-        match_id: match.id,
-        user_id: auth.currentUser?.uid,
-      });
+      await addDoc(collection(db, "bets"), updateMatch);
     }
     fetchData();
   };
@@ -105,10 +93,36 @@ const Bet = (props: Props) => {
     if (!match.result) {
       return "-";
     }
-    if (match.result && isLossedMatch(match)) {
+    if (match.needDeposit) {
       return FormatCurrency(match.deposit);
     }
     return FormatCurrency(0);
+  };
+
+  const getRows = (matchs: any[], bets: any[]) => {
+    const matchBets: any = matchs
+      .map((match) => {
+        const datetime = moment(match.time.seconds * 1000);
+        const userBet = bets.find((bet: any) => bet.match_id === match.id);
+        let newMatch = {
+          ...match,
+          date: datetime.format("dddd, Do MMMM"),
+          hour: datetime.format("HH:mm"),
+          datetime,
+        };
+        if (userBet) {
+          newMatch = {
+            ...newMatch,
+            ...userBet,
+          };
+        }
+        return newMatch;
+      })
+      .map((match) => ({
+        ...match,
+        needDeposit: match.result && isLossedMatch(match),
+      }));
+    return matchBets;
   };
 
   return (
@@ -118,10 +132,10 @@ const Bet = (props: Props) => {
           <h3>
             Total: &nbsp;{" "}
             {FormatCurrency(
-              matchs
-                .filter((match) => match.result && isLossedMatch(match))
-                .map((match) => match.deposit)
-                .reduce((a, b) => a + b, 0)
+              getRows(matchs, bets)
+                .filter((match: any) => match.needDeposit)
+                .map((match: any) => match.deposit)
+                .reduce((a: any, b: any) => a + b, 0)
             )}
           </h3>
         </div>
@@ -145,7 +159,7 @@ const Bet = (props: Props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {matchs.map((match, rowIndex) => {
+          {getRows(matchs, bets).map((match: any, rowIndex: number) => {
             return (
               <TableRow key={match.id}>
                 <TableCell>{rowIndex + 1}</TableCell>
