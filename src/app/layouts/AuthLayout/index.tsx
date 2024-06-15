@@ -84,7 +84,13 @@ const AuthLayout = (props: Props) => {
               />
             </Link>
 
-            <Box sx={{ flexGrow: 1, paddingLeft: 4 }}>
+            <Box sx={{ flexGrow: 1, paddingLeft: 4, display: "flex" }}>
+              <Button
+                onClick={() => navigate("/")}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                Home
+              </Button>
               <Button
                 onClick={() => navigate("/leaderboard")}
                 sx={{ my: 2, color: "white", display: "block" }}

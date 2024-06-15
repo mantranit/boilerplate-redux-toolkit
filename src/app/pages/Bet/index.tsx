@@ -113,12 +113,7 @@ const Bet = (props: Props) => {
 
   return (
     <div>
-      <div className="flex items-center justify-between my-4">
-        {role === "admin" && (
-          <Button variant="contained" component={Link} href="/add">
-            Add Match
-          </Button>
-        )}
+      <div className="my-4">
         <div>
           <h3>
             Total: &nbsp;{" "}
