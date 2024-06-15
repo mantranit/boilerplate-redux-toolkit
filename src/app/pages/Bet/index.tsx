@@ -159,7 +159,6 @@ const Bet = (props: Props) => {
   };
 
   const handleUpdateBet = async (match: any, bet: string) => {
-    console.log(match, bet);
     const updateMatch = {
       bet,
       match_id: match.id,
