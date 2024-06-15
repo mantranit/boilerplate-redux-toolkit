@@ -12,7 +12,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import moment from "moment";
 import { FormatCurrency, isLossedMatch } from "../../utils";
 import { Check, Close } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
 
 const columns: GridColDef<any[number]>[] = [
   {
@@ -111,9 +111,13 @@ const Leaderboard = (props: Props) => {
             if (!matchBet.bet) {
               return "";
             }
-            return matchBet.bet === "homeName"
-              ? matchBet.homeName
-              : matchBet.awayName;
+            return (
+              <Tooltip title={matchBet.forecast || ""}>
+                {matchBet.bet === "homeName"
+                  ? matchBet.homeName
+                  : matchBet.awayName}
+              </Tooltip>
+            );
           }
           return (
             <IconButton>
