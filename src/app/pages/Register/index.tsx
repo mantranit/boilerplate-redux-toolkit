@@ -13,10 +13,14 @@ import { useAppDispatch } from "../../../redux/store";
 import { toast } from "react-toastify";
 import Button from "../../components/Button";
 import { jwtDecode } from "jwt-decode";
+import { useFirebaseApp } from "../../contexts/FirebaseProvider";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 
 type Props = {};
 
 const Register = (props: Props) => {
+  const app = useFirebaseApp();
+  const db = getFirestore(app);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { control, handleSubmit } = useForm({
@@ -32,6 +36,9 @@ const Register = (props: Props) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential: UserCredential) => {
         await updateProfile(userCredential.user, {
+          displayName,
+        });
+        await setDoc(doc(db, "users", userCredential.user.uid), {
           displayName,
         });
         const user = userCredential.user.toJSON();
