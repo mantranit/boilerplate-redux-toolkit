@@ -102,7 +102,7 @@ const Bet = (props: Props) => {
           return "-";
         }
         if (row.needDeposit) {
-          return value;
+          return FormatCurrency(value);
         }
         return 0;
       },

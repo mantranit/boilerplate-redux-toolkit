@@ -14,22 +14,6 @@ import { FormatCurrency, isLossedMatch } from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 
-const columns: GridColDef<any[number]>[] = [
-  {
-    field: "displayName",
-    headerName: "Full Name",
-    width: 150,
-  },
-  {
-    field: "totalDeposit",
-    headerName: "Deposit",
-    width: 150,
-    valueFormatter: (value) => {
-      return FormatCurrency(value);
-    },
-  },
-];
-
 type Props = {};
 
 const Leaderboard = (props: Props) => {
@@ -82,13 +66,22 @@ const Leaderboard = (props: Props) => {
   const getColumns = (matchs: any[]) => {
     const newColumns: GridColDef<any[number]>[] = [
       {
+        field: "id",
+        headerName: "#",
+        width: 10,
+        renderCell: (index) =>
+          index.api.getRowIndexRelativeToVisibleRows(index.row.id) + 1,
+      },
+      {
         field: "displayName",
         headerName: "Full Name",
+        sortable: false,
         width: 150,
       },
       {
         field: "totalDeposit",
         headerName: "Deposit",
+        sortable: false,
         width: 150,
         valueFormatter: (value: any) => {
           return FormatCurrency(value);
@@ -135,42 +128,56 @@ const Leaderboard = (props: Props) => {
   };
 
   const getRows = (users: any[], matchs: any[], bets: any[]) => {
-    return users.map((user: any) => {
-      const userBets: any = bets.filter((bets) => bets.user_id === user.id);
-      const matchBets: any = matchs
-        .map((match) => {
-          const userBet = userBets.find(
-            (bet: any) => bet.match_id === match.id
-          );
-          if (userBet) {
-            return {
-              ...match,
-              ...userBet,
-            };
-          }
-          return match;
-        })
-        .map((match) => ({
-          ...match,
-          needDeposit: match.result && isLossedMatch(match),
-        }));
-      const rows = {
-        ...user,
-        matchBets,
-        totalDeposit: matchBets
-          .filter((match: any) => match.needDeposit)
-          .map((match: any) => match.deposit)
-          .reduce((a: any, b: any) => a + b, 0),
-      };
-      for (let i = 1; i <= matchBets.length; i++) {
-        rows[`match-${i}`] = matchBets[i - 1].needDeposit;
-      }
-      return rows;
-    });
+    return users
+      .map((user: any) => {
+        const userBets: any = bets.filter((bets) => bets.user_id === user.id);
+        const matchBets: any = matchs
+          .map((match) => {
+            const userBet = userBets.find(
+              (bet: any) => bet.match_id === match.id
+            );
+            if (userBet) {
+              return {
+                ...match,
+                ...userBet,
+              };
+            }
+            return match;
+          })
+          .map((match) => ({
+            ...match,
+            needDeposit: match.result && isLossedMatch(match),
+          }));
+        const rows = {
+          ...user,
+          matchBets,
+          totalDeposit: matchBets
+            .filter((match: any) => match.needDeposit)
+            .map((match: any) => match.deposit)
+            .reduce((a: any, b: any) => a + b, 0),
+        };
+        for (let i = 1; i <= matchBets.length; i++) {
+          rows[`match-${i}`] = matchBets[i - 1].needDeposit;
+        }
+        return rows;
+      })
+      .sort((a, b) => b.totalDeposit - a.totalDeposit);
   };
 
   return (
     <div>
+      <div className="my-4">
+        <div>
+          <h3>
+            Total: &nbsp;{" "}
+            {FormatCurrency(
+              getRows(users, matchs, bets)
+                .map((match: any) => match.totalDeposit)
+                .reduce((a: any, b: any) => a + b, 0)
+            )}
+          </h3>
+        </div>
+      </div>
       <DataGrid
         columns={getColumns(matchs)}
         rows={getRows(users, matchs, bets)}
