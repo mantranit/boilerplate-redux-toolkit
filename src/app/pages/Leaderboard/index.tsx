@@ -66,11 +66,9 @@ const Leaderboard = (props: Props) => {
   const getColumns = (matchs: any[]) => {
     const newColumns: GridColDef<any[number]>[] = [
       {
-        field: "id",
+        field: "rank",
         headerName: "#",
         width: 10,
-        renderCell: (index) =>
-          index.api.getRowIndexRelativeToVisibleRows(index.row.id) + 1,
       },
       {
         field: "displayName",
@@ -161,7 +159,8 @@ const Leaderboard = (props: Props) => {
         }
         return rows;
       })
-      .sort((a, b) => b.totalDeposit - a.totalDeposit);
+      .sort((a, b) => b.totalDeposit - a.totalDeposit)
+      .map((user, index) => ({ ...user, rank: index + 1 }));
   };
 
   return (
