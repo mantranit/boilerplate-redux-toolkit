@@ -3,13 +3,23 @@ export const FormatCurrency = (number: number) => {
 };
 
 export const isLossedMatch = (match: any) => {
+  const resultArr = match.result.split("-").map((str: any) => parseFloat(str));
+  const resultSub = resultArr[0] - resultArr[1];
+  if (!match.forecast) {
+    if (
+      !match.bet ||
+      (match.bet === "awayName" && resultSub > 0) ||
+      (match.bet === "homeName" && resultSub < 0)
+    ) {
+      return true;
+    }
+    return false;
+  }
   const forecastArr = match.forecast
     .split("-")
     .map((str: any) => parseFloat(str));
-  const resultArr = match.result.split("-").map((str: any) => parseFloat(str));
 
   const forecastSub = forecastArr[0] - forecastArr[1];
-  const resultSub = resultArr[0] - resultArr[1];
   if (
     !match.bet ||
     (match.bet === "awayName" && forecastSub < resultSub) ||
