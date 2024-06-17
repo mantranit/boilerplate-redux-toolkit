@@ -20,7 +20,6 @@ const Leaderboard = (props: Props) => {
   const db = getFirestore(app);
   const [users, setUsers] = useState<any[]>([]);
   const [matchs, setMatchs] = useState<any[]>([]);
-  const [bets, setBets] = useState<any[]>([]);
   useEffect(() => {
     fetchData();
   }, []);
@@ -87,8 +86,9 @@ const Leaderboard = (props: Props) => {
         renderCell: (params) => {
           const matchBet = params.row.matchBets[i - 1];
           if (!matchBet.result) {
+            return <></>;
             if (!matchBet.bet) {
-              return "";
+              return <></>;
             }
             return (
               <Tooltip title={matchBet.forecast || ""}>
