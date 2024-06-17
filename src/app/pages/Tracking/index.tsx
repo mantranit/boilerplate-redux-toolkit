@@ -6,7 +6,6 @@ import {
   getFirestore,
   orderBy,
   query,
-  where,
 } from "firebase/firestore";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { FormatCurrency, isLossedMatch } from "../../utils";
@@ -15,7 +14,7 @@ import { IconButton, Tooltip } from "@mui/material";
 
 type Props = {};
 
-const Leaderboard = (props: Props) => {
+const Tracking = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
   const [users, setUsers] = useState<any[]>([]);
@@ -49,6 +48,17 @@ const Leaderboard = (props: Props) => {
       });
     });
     setMatchs(listMatchs);
+
+    querySnapshot = await getDocs(query(collection(db, "bets")));
+    let listBets: any[] = [];
+    querySnapshot.forEach((doc) => {
+      const dataBets = doc.data();
+      listBets.push({
+        ...dataBets,
+        id: doc.id,
+      });
+    });
+    setBets(listBets);
   };
 
   const getColumns = (matchs: any[]) => {
@@ -115,12 +125,15 @@ const Leaderboard = (props: Props) => {
     return newColumns;
   };
 
-  const getRows = (users: any[], matchs: any[]) => {
+  const getRows = (users: any[], matchs: any[], bets: any[]) => {
     return users
       .map((user: any) => {
+        const userBets: any = bets.filter((bets) => bets.user_id === user.id);
         const matchBets: any = matchs
           .map((match) => {
-            const userBet = user[match.id];
+            const userBet = userBets.find(
+              (bet: any) => bet.match_id === match.id
+            );
             if (userBet) {
               return {
                 ...match,
@@ -158,7 +171,7 @@ const Leaderboard = (props: Props) => {
           <h3>
             Total: &nbsp;{" "}
             {FormatCurrency(
-              getRows(users, matchs)
+              getRows(users, matchs, bets)
                 .map((match: any) => match.totalDeposit)
                 .reduce((a: any, b: any) => a + b, 0)
             )}
@@ -167,7 +180,7 @@ const Leaderboard = (props: Props) => {
       </div>
       <DataGrid
         columns={getColumns(matchs)}
-        rows={getRows(users, matchs)}
+        rows={getRows(users, matchs, bets)}
         disableColumnFilter
         disableColumnMenu
         disableRowSelectionOnClick
@@ -177,4 +190,4 @@ const Leaderboard = (props: Props) => {
   );
 };
 
-export default Leaderboard;
+export default Tracking;

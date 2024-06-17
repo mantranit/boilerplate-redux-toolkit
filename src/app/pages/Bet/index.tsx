@@ -4,6 +4,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
   getFirestore,
   orderBy,
@@ -30,6 +31,7 @@ import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { FormatCurrency, isLossedMatch } from "../../utils";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { toast } from "react-toastify";
 
 type Props = {};
 
@@ -37,10 +39,11 @@ const Bet = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
   const navigate = useNavigate();
-  const auth = getAuth();
+  const userCredential = useAppSelector((state) => state.auth.userCredential);
   const role = useAppSelector((state) => state.auth.role);
   const [matchs, setMatchs] = useState<any[]>([]);
   const [bets, setBets] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   const columns: GridColDef<any[number]>[] = [
     {
@@ -124,8 +127,21 @@ const Bet = (props: Props) => {
   ];
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (userCredential) {
+      fetchUser();
+      fetchData();
+    }
+  }, [userCredential]);
+
+  const fetchUser = async () => {
+    const docSnap = await getDoc(doc(db, "users", userCredential.uid));
+
+    if (docSnap.exists()) {
+      setCurrentUser(docSnap.data());
+    } else {
+      toast.error("No such document!");
+    }
+  };
 
   const fetchData = async () => {
     let querySnapshot = await getDocs(
@@ -142,10 +158,7 @@ const Bet = (props: Props) => {
     setMatchs(listMatchs);
 
     querySnapshot = await getDocs(
-      query(
-        collection(db, "bets"),
-        where("user_id", "==", auth.currentUser?.uid)
-      )
+      query(collection(db, "bets"), where("user_id", "==", userCredential.uid))
     );
     let listBets: any[] = [];
     querySnapshot.forEach((doc) => {
@@ -162,7 +175,7 @@ const Bet = (props: Props) => {
     const updateMatch = {
       bet,
       match_id: match.id,
-      user_id: auth.currentUser?.uid,
+      user_id: userCredential.uid,
     };
     if (match.bet_id) {
       await updateDoc(doc(db, "bets", match.bet_id), updateMatch);
@@ -172,17 +185,23 @@ const Bet = (props: Props) => {
     fetchData();
   };
 
-  const calcDeposit = (match: any) => {
-    if (!match.result) {
-      return "-";
+  const updateUserBets = async (bets: any[]) => {
+    const dataUser = { ...currentUser };
+    for (let i = 0; i < bets.length; i++) {
+      const bet = bets[i];
+      dataUser[bet.match_id] = {
+        bet: bet.bet,
+        bet_id: bet.id,
+      };
     }
-    if (match.needDeposit) {
-      return FormatCurrency(match.deposit);
-    }
-    return FormatCurrency(0);
+
+    await updateDoc(doc(db, "users", userCredential.uid), dataUser);
   };
 
   const getRows = (matchs: any[], bets: any[]) => {
+    if (userCredential) {
+      updateUserBets(bets);
+    }
     const matchBets: any = matchs
       .map((match) => {
         const datetime = moment(match.time.seconds * 1000);

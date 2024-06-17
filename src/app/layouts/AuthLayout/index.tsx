@@ -30,6 +30,7 @@ const AuthLayout = (props: Props) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.userCredential);
+  const role = useAppSelector((state) => state.auth.role);
 
   const auth = getAuth();
 
@@ -97,6 +98,14 @@ const AuthLayout = (props: Props) => {
               >
                 Leaderboard
               </Button>
+              {role === "admin" && (
+                <Button
+                  onClick={() => navigate("/tracking")}
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  Tracking
+                </Button>
+              )}
             </Box>
 
             <Box sx={{ flexGrow: 0 }}>
