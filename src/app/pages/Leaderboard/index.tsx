@@ -12,6 +12,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { FormatCurrency, isLossedMatch } from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
+import moment from "moment";
 
 type Props = {};
 
@@ -86,19 +87,21 @@ const Leaderboard = (props: Props) => {
         renderCell: (params) => {
           const matchBet = params.row.matchBets[i - 1];
           if (!matchBet.result) {
-            return <></>;
-            if (!matchBet.bet) {
-              return <></>;
+            if (
+              matchBet.bet &&
+              moment().isAfter(moment(matchBet.time.seconds * 1000))
+            ) {
+              return (
+                <Tooltip title={matchBet.forecast || ""}>
+                  {matchBet.bet === "homeName" ? (
+                    <span>{matchBet.homeName}</span>
+                  ) : (
+                    <span>{matchBet.awayName}</span>
+                  )}
+                </Tooltip>
+              );
             }
-            return (
-              <Tooltip title={matchBet.forecast || ""}>
-                {matchBet.bet === "homeName" ? (
-                  <span>{matchBet.homeName}</span>
-                ) : (
-                  <span>{matchBet.awayName}</span>
-                )}
-              </Tooltip>
-            );
+            return <></>;
           }
           return (
             <IconButton>
