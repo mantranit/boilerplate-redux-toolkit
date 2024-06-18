@@ -11,15 +11,24 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { FormatCurrency, isLossedMatch } from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
+import { useAppSelector } from "../../../redux/store";
+import { useNavigate } from "react-router-dom";
 
 type Props = {};
 
 const Tracking = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
+  const role = useAppSelector((state) => state.auth.role);
+  const navigate = useNavigate();
   const [users, setUsers] = useState<any[]>([]);
   const [matchs, setMatchs] = useState<any[]>([]);
   const [bets, setBets] = useState<any[]>([]);
+
+  if (role !== "admin") {
+    navigate("/leaderboard");
+  }
+
   useEffect(() => {
     fetchData();
   }, []);
