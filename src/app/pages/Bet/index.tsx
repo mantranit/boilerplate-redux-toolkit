@@ -167,9 +167,6 @@ const Bet = (props: Props) => {
   };
 
   const handleUpdateBet = async (match: any, bet: string) => {
-    if (role !== "admin") {
-      return;
-    }
     const updateMatch = {
       bet,
       match_id: match.id,

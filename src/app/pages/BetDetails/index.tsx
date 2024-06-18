@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import TextField from "../../components/TextField";
 import Button from "../../components/Button";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppDispatch } from "../../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import { useForm } from "react-hook-form";
 import {
   addDoc,
@@ -25,6 +25,7 @@ const BetDetails = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
   const navigate = useNavigate();
+  const role = useAppSelector((state) => state.auth.role);
   const { match_id } = useParams();
   const { control, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: {
@@ -36,6 +37,10 @@ const BetDetails = (props: Props) => {
       result: "",
     },
   });
+
+  if (role !== "admin") {
+    navigate("/leaderboard");
+  }
 
   useEffect(() => {
     fetchData();
@@ -120,7 +125,12 @@ const BetDetails = (props: Props) => {
             />
           </div>
           <div className="flex gap-5">
-            <TextField disabled={moment().isSameOrAfter(watch("time"))} control={control} name="forecast" label="Forecast" />
+            <TextField
+              disabled={moment().isSameOrAfter(watch("time"))}
+              control={control}
+              name="forecast"
+              label="Forecast"
+            />
             <TextField control={control} name="result" label="Result" />
           </div>
           <div className="flex gap-5">
