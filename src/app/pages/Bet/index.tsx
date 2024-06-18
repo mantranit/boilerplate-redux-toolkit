@@ -12,26 +12,16 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import {
-  Checkbox,
-  FormLabel,
-  IconButton,
-  Link,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "@mui/material";
+import { Checkbox, FormLabel, IconButton, Link } from "@mui/material";
 import moment from "moment";
-import { getAuth } from "firebase/auth";
 import { useAppSelector } from "../../../redux/store";
 import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { FormatCurrency, isLossedMatch } from "../../utils";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import { toast } from "react-toastify";
+import DataGrid from "../../components/DataGrid";
 
 type Props = {};
 
@@ -44,6 +34,7 @@ const Bet = (props: Props) => {
   const [matchs, setMatchs] = useState<any[]>([]);
   const [bets, setBets] = useState<any[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const columns: GridColDef<any[number]>[] = [
     {
@@ -134,6 +125,7 @@ const Bet = (props: Props) => {
   }, [userCredential]);
 
   const fetchUser = async () => {
+    setLoading(true);
     const docSnap = await getDoc(doc(db, "users", userCredential.uid));
 
     if (docSnap.exists()) {
@@ -141,9 +133,11 @@ const Bet = (props: Props) => {
     } else {
       toast.error("No such document!");
     }
+    setLoading(false);
   };
 
   const fetchData = async () => {
+    setLoading(true);
     let querySnapshot = await getDocs(
       query(collection(db, "matchs"), orderBy("time"))
     );
@@ -169,6 +163,7 @@ const Bet = (props: Props) => {
       });
     });
     setBets(listBets);
+    setLoading(false);
   };
 
   const handleUpdateBet = async (match: any, bet: string) => {
@@ -247,13 +242,9 @@ const Bet = (props: Props) => {
         </div>
       </div>
       <DataGrid
+        loading={loading}
         columns={columns}
         rows={getRows(matchs, bets)}
-        disableColumnSorting
-        disableColumnFilter
-        disableColumnMenu
-        disableRowSelectionOnClick
-        disableMultipleRowSelection
       />
       <div className="my-4">
         {role === "admin" && (

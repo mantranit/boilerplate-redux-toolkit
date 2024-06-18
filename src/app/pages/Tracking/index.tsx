@@ -7,12 +7,13 @@ import {
   orderBy,
   query,
 } from "firebase/firestore";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import { FormatCurrency, isLossedMatch } from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import { useAppSelector } from "../../../redux/store";
 import { useNavigate } from "react-router-dom";
+import DataGrid from "../../components/DataGrid";
 
 type Props = {};
 
@@ -24,6 +25,7 @@ const Tracking = (props: Props) => {
   const [users, setUsers] = useState<any[]>([]);
   const [matchs, setMatchs] = useState<any[]>([]);
   const [bets, setBets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   if (role !== "admin") {
     navigate("/leaderboard");
@@ -34,6 +36,7 @@ const Tracking = (props: Props) => {
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
     let querySnapshot = await getDocs(query(collection(db, "users")));
     let listUsers: any[] = [];
     querySnapshot.forEach((doc) => {
@@ -68,6 +71,7 @@ const Tracking = (props: Props) => {
       });
     });
     setBets(listBets);
+    setLoading(false);
   };
 
   const getColumns = (matchs: any[]) => {
@@ -188,12 +192,9 @@ const Tracking = (props: Props) => {
         </div>
       </div>
       <DataGrid
+        loading={loading}
         columns={getColumns(matchs)}
         rows={getRows(users, matchs, bets)}
-        disableColumnFilter
-        disableColumnMenu
-        disableRowSelectionOnClick
-        disableMultipleRowSelection
       />
     </div>
   );

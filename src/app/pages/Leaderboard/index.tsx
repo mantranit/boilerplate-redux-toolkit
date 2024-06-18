@@ -8,11 +8,12 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import { FormatCurrency, isLossedMatch } from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import moment from "moment";
+import DataGrid from "../../components/DataGrid";
 
 type Props = {};
 
@@ -21,11 +22,13 @@ const Leaderboard = (props: Props) => {
   const db = getFirestore(app);
   const [users, setUsers] = useState<any[]>([]);
   const [matchs, setMatchs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
     let querySnapshot = await getDocs(query(collection(db, "users")));
     let listUsers: any[] = [];
     querySnapshot.forEach((doc) => {
@@ -49,6 +52,7 @@ const Leaderboard = (props: Props) => {
       });
     });
     setMatchs(listMatchs);
+    setLoading(false);
   };
 
   const getColumns = (matchs: any[]) => {
@@ -169,12 +173,9 @@ const Leaderboard = (props: Props) => {
         </div>
       </div>
       <DataGrid
+        loading={loading}
         columns={getColumns(matchs)}
         rows={getRows(users, matchs)}
-        disableColumnFilter
-        disableColumnMenu
-        disableRowSelectionOnClick
-        disableMultipleRowSelection
       />
     </div>
   );
