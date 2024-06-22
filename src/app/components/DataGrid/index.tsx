@@ -45,12 +45,6 @@ const DataGrid = (props: Props) => {
         "& .odd, & .today": {
           background: "#efefef",
         },
-        "& .today:after": {
-          content: "'(Today)'",
-          display: "block",
-          lineHeight: 1,
-          fontSize: 12,
-        },
       }}
       {...props}
     />
