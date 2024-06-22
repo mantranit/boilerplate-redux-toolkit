@@ -52,7 +52,9 @@ const Bet = (props: Props) => {
       headerName: "Date",
       width: 200,
       cellClassName: (params: GridCellParams<any>) => {
-        return params.row?.rowSpan ? `row-span-${params.row.rowSpan}` : "";
+        return `${params.row?.rowSpan ? `row-span-${params.row.rowSpan}` : ""}${
+          params.row?.datetime.isSame(new Date(), "day") ? ` today` : ""
+        }`;
       },
     },
     { field: "hour", headerName: "Hour" },

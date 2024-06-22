@@ -42,8 +42,14 @@ const DataGrid = (props: Props) => {
           borderLeft: "1px solid var(--DataGrid-rowBorderColor)",
           borderRight: "1px solid var(--DataGrid-rowBorderColor)",
         },
-        "& .MuiDataGrid-row.odd": {
-          background: "#efefef80",
+        "& .odd, & .today": {
+          background: "#efefef",
+        },
+        "& .today:after": {
+          content: "'(Today)'",
+          display: "block",
+          lineHeight: 1,
+          fontSize: 12,
         },
       }}
       {...props}
