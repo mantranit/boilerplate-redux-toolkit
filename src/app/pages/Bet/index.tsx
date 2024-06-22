@@ -19,7 +19,7 @@ import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { FormatCurrency, isLossedMatch } from "../../utils";
-import { GridColDef } from "@mui/x-data-grid";
+import { GridCellParams, GridColDef } from "@mui/x-data-grid";
 import { toast } from "react-toastify";
 import DataGrid from "../../components/DataGrid";
 
@@ -41,10 +41,20 @@ const Bet = (props: Props) => {
       field: "id",
       headerName: "#",
       width: 10,
+      cellClassName: (params: GridCellParams<any>) => {
+        return "bg-white";
+      },
       renderCell: (index) =>
         index.api.getRowIndexRelativeToVisibleRows(index.row.id) + 1,
     },
-    { field: "date", headerName: "Date", width: 200 },
+    {
+      field: "date",
+      headerName: "Date",
+      width: 200,
+      cellClassName: (params: GridCellParams<any>) => {
+        return params.row?.rowSpan ? `row-span-${params.row.rowSpan}` : "";
+      },
+    },
     { field: "hour", headerName: "Hour" },
     {
       field: "homeName",
@@ -220,7 +230,19 @@ const Bet = (props: Props) => {
         ...match,
         needDeposit: match.result && isLossedMatch(match),
       }));
-    return matchBets;
+    let countDate = 0;
+    return matchBets.map((match: any, index: number) => {
+      if (
+        index === 0 ||
+        (index > 0 && match.date !== matchBets[index - 1].date)
+      ) {
+        return {
+          ...match,
+          rowSpan: matchBets.filter((m: any) => m.date === match.date).length,
+        };
+      }
+      return match;
+    });
   };
 
   return (

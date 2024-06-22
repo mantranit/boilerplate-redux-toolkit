@@ -108,13 +108,15 @@ const Leaderboard = (props: Props) => {
             return <></>;
           }
           return (
-            <IconButton>
-              {params.value ? (
-                <Close color="primary" />
-              ) : (
-                <Check color="error" />
-              )}
-            </IconButton>
+            <Tooltip title={params.row.displayName}>
+              <IconButton>
+                {params.value ? (
+                  <Close color="primary" />
+                ) : (
+                  <Check color="error" />
+                )}
+              </IconButton>
+            </Tooltip>
           );
         },
       });
