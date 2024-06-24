@@ -1,15 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import TextField from "../../components/TextField";
 import Button from "../../components/Button";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../../redux/store";
+import { useAppSelector } from "../../../redux/store";
 import { useForm } from "react-hook-form";
 import {
   addDoc,
   collection,
   doc,
   getDoc,
+  getDocs,
   getFirestore,
+  orderBy,
+  query,
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
@@ -26,6 +29,7 @@ const BetDetails = (props: Props) => {
   const db = getFirestore(app);
   const navigate = useNavigate();
   const role = useAppSelector((state) => state.auth.role);
+  const [deposits, setDeposits] = useState<any[]>([]);
   const { match_id } = useParams();
   const { control, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: {
@@ -47,6 +51,19 @@ const BetDetails = (props: Props) => {
   }, []);
 
   const fetchData = async () => {
+    let querySnapshot = await getDocs(
+      query(collection(db, "deposits"), orderBy("deposit"))
+    );
+    let listDeposits: any[] = [];
+    querySnapshot.forEach((doc) => {
+      const dataDeposits = doc.data();
+      listDeposits.push({
+        ...dataDeposits,
+        id: doc.id,
+      });
+    });
+    setDeposits(listDeposits);
+
     if (match_id) {
       const docRef = doc(db, "matchs", match_id);
       const docSnap = await getDoc(docRef);
@@ -115,6 +132,10 @@ const BetDetails = (props: Props) => {
               disabled={moment().isSameOrAfter(watch("time"))}
             />
             <TextField
+              options={deposits.map((deposit) => ({
+                value: deposit.deposit,
+                label: deposit.round,
+              }))}
               disabled={moment().isSameOrAfter(watch("time"))}
               control={control}
               rules={{

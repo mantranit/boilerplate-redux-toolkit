@@ -1,12 +1,33 @@
 import React from "react";
-import { TextField as MuiTextField, TextFieldProps } from "@mui/material";
+import {
+  MenuItem,
+  TextField as MuiTextField,
+  TextFieldProps,
+} from "@mui/material";
 import { Control, Controller } from "react-hook-form";
 
 type Props = {
   control?: Control<any>;
   rules?: any;
   name: string;
+  options?: { value: any; label: string }[];
 } & TextFieldProps;
+
+const AppTextField = (props: Props) => {
+  const { options = [], ...restProps } = props;
+  if (options.length === 0) {
+    return <MuiTextField {...restProps} />;
+  }
+  return (
+    <MuiTextField select {...restProps}>
+      {options.map((option) => (
+        <MenuItem key={option.value} value={option.value}>
+          {option.label}
+        </MenuItem>
+      ))}
+    </MuiTextField>
+  );
+};
 
 const TextField = (props: Props) => {
   const { control, rules, name, ...restProps } = props;
@@ -16,10 +37,10 @@ const TextField = (props: Props) => {
         control={control}
         rules={rules}
         name={name}
-        render={({ field, fieldState }) => (
-          <MuiTextField
+        render={({ field: { ref, ...restField }, fieldState }) => (
+          <AppTextField
             fullWidth
-            {...field}
+            {...restField}
             {...restProps}
             error={!!fieldState.error}
             helperText={fieldState.error?.message}
@@ -28,7 +49,7 @@ const TextField = (props: Props) => {
       />
     );
   }
-  return <MuiTextField fullWidth {...props} />;
+  return <AppTextField {...props} />;
 };
 
 export default TextField;
