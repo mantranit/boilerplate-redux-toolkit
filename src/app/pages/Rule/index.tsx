@@ -14,7 +14,7 @@ import { FormatCurrency } from "../../utils";
 const columns: GridColDef<any[number]>[] = [
   {
     field: "round",
-    headerName: "#",
+    headerName: "Match of",
     width: 200,
   },
   {
