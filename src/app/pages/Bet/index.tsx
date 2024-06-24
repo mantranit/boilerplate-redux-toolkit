@@ -40,7 +40,7 @@ const Bet = (props: Props) => {
     {
       field: "id",
       headerName: "#",
-      width: 10,
+      width: 20,
       cellClassName: (params: GridCellParams<any>) => {
         return "bg-white";
       },
@@ -61,11 +61,14 @@ const Bet = (props: Props) => {
     {
       field: "homeName",
       headerName: "Home",
-      width: 200,
-      headerClassName: "!pl-6",
+      width: 180,
+      align: "right",
+      headerAlign: "right",
+      headerClassName: "!pr-6",
       renderCell: (params) => {
         return (
           <>
+            <FormLabel>{params.value}</FormLabel>
             <Checkbox
               checked={params.row.bet === "homeName"}
               disabled={moment().isSameOrAfter(params.row.datetime)}
@@ -73,15 +76,21 @@ const Bet = (props: Props) => {
                 handleUpdateBet(params.row, "homeName");
               }}
             />
-            <FormLabel>{params.value}</FormLabel>
           </>
         );
       },
     },
     {
+      field: "forecast",
+      headerName: "Forecast",
+      align: "center",
+      headerAlign: "center",
+      width: 100,
+    },
+    {
       field: "awayName",
       headerName: "Away",
-      width: 200,
+      width: 180,
       headerClassName: "!pl-6",
       renderCell: (params) => {
         return (
@@ -98,7 +107,6 @@ const Bet = (props: Props) => {
         );
       },
     },
-    { field: "forecast", headerName: "Forecast" },
     { field: "result", headerName: "Result" },
     {
       field: "deposit",
