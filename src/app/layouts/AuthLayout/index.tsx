@@ -85,7 +85,7 @@ const AuthLayout = (props: Props) => {
               />
             </Link>
 
-            <Box sx={{ flexGrow: 1, paddingLeft: 4, display: "flex" }}>
+            <Box sx={{ flexGrow: 1, paddingLeft: 2, display: "flex" }}>
               <Button
                 onClick={() => navigate("/")}
                 sx={{ my: 2, color: "white", display: "block" }}
@@ -94,7 +94,11 @@ const AuthLayout = (props: Props) => {
               </Button>
               <Button
                 onClick={() => navigate("/rule")}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: { xs: "none", sm: "block" },
+                }}
               >
                 Rule
               </Button>
@@ -107,7 +111,11 @@ const AuthLayout = (props: Props) => {
               {role === "admin" && (
                 <Button
                   onClick={() => navigate("/tracking")}
-                  sx={{ my: 2, color: "white", display: "block" }}
+                  sx={{
+                    my: 2,
+                    color: "white",
+                    display: { xs: "none", sm: "block" },
+                  }}
                 >
                   Tracking
                 </Button>
@@ -141,6 +149,24 @@ const AuthLayout = (props: Props) => {
                     Hello, {user?.displayName || user?.email}
                   </Typography>
                 </MenuItem>
+                <MenuItem
+                  onClick={() => navigate("/rule")}
+                  sx={{
+                    display: { xs: "block", sm: "none" },
+                  }}
+                >
+                  <Typography>Rule</Typography>
+                </MenuItem>
+                {role === "admin" && (
+                  <MenuItem
+                    onClick={() => navigate("/tracking")}
+                    sx={{
+                      display: { xs: "block", sm: "none" },
+                    }}
+                  >
+                    <Typography>Tracking</Typography>
+                  </MenuItem>
+                )}
                 <MenuItem onClick={handleLogout}>
                   <Typography>Logout</Typography>
                 </MenuItem>
