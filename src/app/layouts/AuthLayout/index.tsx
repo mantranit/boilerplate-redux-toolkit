@@ -93,6 +93,12 @@ const AuthLayout = (props: Props) => {
                 Home
               </Button>
               <Button
+                onClick={() => navigate("/rule")}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                Rule
+              </Button>
+              <Button
                 onClick={() => navigate("/leaderboard")}
                 sx={{ my: 2, color: "white", display: "block" }}
               >

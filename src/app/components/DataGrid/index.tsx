@@ -16,31 +16,20 @@ const DataGrid = (props: Props) => {
       }
       sx={{
         "& .MuiDataGrid-virtualScrollerContent": { minHeight: 52 },
-        "& .row-span-4": {
+        "& .row-span": {
           position: "relative",
-          minHeight: 52 * 4,
           background: "white",
           borderLeft: "1px solid var(--DataGrid-rowBorderColor)",
           borderRight: "1px solid var(--DataGrid-rowBorderColor)",
+        },
+        "& .row-span-4": {
+          minHeight: 52 * 4,
         },
         "& .row-span-3": {
-          position: "relative",
           minHeight: 52 * 3,
-          background: "white",
-          borderLeft: "1px solid var(--DataGrid-rowBorderColor)",
-          borderRight: "1px solid var(--DataGrid-rowBorderColor)",
         },
         "& .row-span-2": {
-          position: "relative",
           minHeight: 52 * 2,
-          background: "white",
-          borderLeft: "1px solid var(--DataGrid-rowBorderColor)",
-          borderRight: "1px solid var(--DataGrid-rowBorderColor)",
-        },
-        "& .row-span-1": {
-          background: "white",
-          borderLeft: "1px solid var(--DataGrid-rowBorderColor)",
-          borderRight: "1px solid var(--DataGrid-rowBorderColor)",
         },
         "& .odd, & .today": {
           background: "#efefef",
