@@ -150,18 +150,24 @@ const AuthLayout = (props: Props) => {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => navigate("/rule")}
+                  onClick={() => {
+                    navigate("/rule");
+                    handleCloseUserMenu();
+                  }}
                   sx={{
-                    display: { xs: "block", sm: "none" },
+                    display: { xs: "flex", sm: "none" },
                   }}
                 >
                   <Typography>Rule</Typography>
                 </MenuItem>
                 {role === "admin" && (
                   <MenuItem
-                    onClick={() => navigate("/tracking")}
+                    onClick={() => {
+                      navigate("/tracking");
+                      handleCloseUserMenu();
+                    }}
                     sx={{
-                      display: { xs: "block", sm: "none" },
+                      display: { xs: "flex", sm: "none" },
                     }}
                   >
                     <Typography>Tracking</Typography>
