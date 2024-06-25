@@ -99,11 +99,11 @@ const BetDetails = (props: Props) => {
     navigate("/");
   };
   return (
-    <div>
+    <div className="max-w-3xl mx-auto">
       <h2>{!!match_id ? "Edit" : "Add"} a Match</h2>
       <form onSubmit={handleSubmit(handleOnSuccess)}>
         <div className="flex flex-col gap-5">
-          <div className="flex gap-5">
+          <div className="flex flex-col sm:flex-row gap-5">
             <TextField
               disabled={moment().isSameOrAfter(watch("time"))}
               control={control}
@@ -123,7 +123,7 @@ const BetDetails = (props: Props) => {
               label="Away Team"
             />
           </div>
-          <div className="flex gap-5">
+          <div className="flex flex-col sm:flex-row gap-5">
             <DateTimePicker
               className="w-full"
               label="Time"
@@ -145,7 +145,7 @@ const BetDetails = (props: Props) => {
               label="Deposit"
             />
           </div>
-          <div className="flex gap-5">
+          <div className="flex flex-col sm:flex-row gap-5">
             <TextField
               disabled={moment().isSameOrAfter(watch("time"))}
               control={control}
