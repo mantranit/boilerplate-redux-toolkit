@@ -96,7 +96,7 @@ const Leaderboard = (props: Props) => {
               moment().isAfter(moment(matchBet.time.seconds * 1000))
             ) {
               return (
-                <Tooltip title={matchBet.forecast || ""}>
+                <Tooltip title={params.row.displayName}>
                   {matchBet.bet === "homeName" ? (
                     <span>{matchBet.homeName}</span>
                   ) : (

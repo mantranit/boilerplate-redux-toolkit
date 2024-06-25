@@ -111,10 +111,10 @@ const Tracking = (props: Props) => {
           const matchBet = params.row.matchBets[i - 1];
           if (!matchBet.result) {
             if (!matchBet.bet) {
-              return "";
+              return <></>;
             }
             return (
-              <Tooltip title={matchBet.forecast || ""}>
+              <Tooltip title={params.row.displayName}>
                 {matchBet.bet === "homeName" ? (
                   <span>{matchBet.homeName}</span>
                 ) : (
@@ -124,13 +124,15 @@ const Tracking = (props: Props) => {
             );
           }
           return (
-            <IconButton>
-              {params.value ? (
-                <Close color="primary" />
-              ) : (
-                <Check color="error" />
-              )}
-            </IconButton>
+            <Tooltip title={params.row.displayName}>
+              <IconButton>
+                {params.value ? (
+                  <Close color="primary" />
+                ) : (
+                  <Check color="error" />
+                )}
+              </IconButton>
+            </Tooltip>
           );
         },
       });
