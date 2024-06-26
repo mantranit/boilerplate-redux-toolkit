@@ -8,8 +8,10 @@ import {
 import React, { useEffect, useState } from "react";
 import { useFirebaseApp } from "../../contexts/FirebaseProvider";
 import DataGrid from "../../components/DataGrid";
-import { GridCellParams, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import { FormatCurrency } from "../../utils";
+import { useAppDispatch, useAppSelector } from "../../../redux/store";
+import { getDeposits } from "../../../services/betsServices";
 
 const columns: GridColDef<any[number]>[] = [
   {
@@ -29,25 +31,17 @@ type Props = {};
 const Rule = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
-  const [deposits, setDeposits] = useState<any[]>([]);
+  const dispatch = useAppDispatch();
+  const getDepositsStatus = useAppSelector(
+    (state) => state.bets.getDepositsStatus
+  );
+  const deposits = useAppSelector((state) => state.bets.deposits);
   useEffect(() => {
-    fetchData();
+    if (getDepositsStatus === "idle") {
+      dispatch(getDeposits({ db }));
+    }
   }, []);
 
-  const fetchData = async () => {
-    let querySnapshot = await getDocs(
-      query(collection(db, "deposits"), orderBy("deposit"))
-    );
-    let listDeposits: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const dataDeposits = doc.data();
-      listDeposits.push({
-        ...dataDeposits,
-        id: doc.id,
-      });
-    });
-    setDeposits(listDeposits);
-  };
   return (
     <div className="max-w-96 mx-auto">
       <DataGrid columns={columns} rows={deposits} />

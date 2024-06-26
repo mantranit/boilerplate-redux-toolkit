@@ -1,10 +1,12 @@
 import { Action, configureStore, ThunkDispatch } from "@reduxjs/toolkit";
-import authReducer from "./authSlice";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import authReducer from "./authSlice";
+import betsReducer from "./betsSlice";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
+    bets: betsReducer,
   },
 });
 

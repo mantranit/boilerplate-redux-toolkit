@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import TextField from "../../components/TextField";
 import Button from "../../components/Button";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppSelector } from "../../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import { useForm } from "react-hook-form";
 import {
   addDoc,
@@ -21,6 +21,7 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import moment from "moment";
 import { Link } from "@mui/material";
 import { toast } from "react-toastify";
+import { getDeposits } from "../../../services/betsServices";
 
 type Props = {};
 
@@ -28,8 +29,12 @@ const BetDetails = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const role = useAppSelector((state) => state.auth.role);
-  const [deposits, setDeposits] = useState<any[]>([]);
+  const getDepositsStatus = useAppSelector(
+    (state) => state.bets.getDepositsStatus
+  );
+  const deposits = useAppSelector((state) => state.bets.deposits);
   const { match_id } = useParams();
   const { control, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: {
@@ -47,23 +52,13 @@ const BetDetails = (props: Props) => {
   }
 
   useEffect(() => {
+    if (getDepositsStatus === "idle") {
+      dispatch(getDeposits({ db }));
+    }
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    let querySnapshot = await getDocs(
-      query(collection(db, "deposits"), orderBy("deposit"))
-    );
-    let listDeposits: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const dataDeposits = doc.data();
-      listDeposits.push({
-        ...dataDeposits,
-        id: doc.id,
-      });
-    });
-    setDeposits(listDeposits);
-
     if (match_id) {
       const docRef = doc(db, "matchs", match_id);
       const docSnap = await getDoc(docRef);
@@ -132,7 +127,7 @@ const BetDetails = (props: Props) => {
               disabled={moment().isSameOrAfter(watch("time"))}
             />
             <TextField
-              options={deposits.map((deposit) => ({
+              options={deposits.map((deposit: any) => ({
                 value: deposit.deposit,
                 label: deposit.round,
               }))}
