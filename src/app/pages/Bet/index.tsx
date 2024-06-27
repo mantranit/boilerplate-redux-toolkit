@@ -78,7 +78,9 @@ const Bet = (props: Props) => {
             <FormLabel>{params.value}</FormLabel>
             <Checkbox
               checked={params.row.bet === "homeName"}
-              disabled={moment().isSameOrAfter(params.row.datetime)}
+              disabled={moment()
+                .subtract(60, "minutes")
+                .isSameOrAfter(params.row.datetime)}
               onClick={() => {
                 handleUpdateBet(params.row, "homeName");
               }}
@@ -104,7 +106,9 @@ const Bet = (props: Props) => {
           <>
             <Checkbox
               checked={params.row.bet === "awayName"}
-              disabled={moment().isSameOrAfter(params.row.datetime)}
+              disabled={moment()
+                .subtract(60, "minutes")
+                .isSameOrAfter(params.row.datetime)}
               onClick={() => {
                 handleUpdateBet(params.row, "awayName");
               }}
