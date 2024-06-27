@@ -4,24 +4,22 @@ import {
   addDoc,
   collection,
   doc,
-  getDoc,
-  getDocs,
   getFirestore,
-  orderBy,
-  query,
   updateDoc,
-  where,
 } from "firebase/firestore";
 import { Checkbox, FormLabel, IconButton, Link } from "@mui/material";
 import moment from "moment";
-import { useAppSelector } from "../../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { FormatCurrency, isLossedMatch } from "../../utils";
 import { GridCellParams, GridColDef } from "@mui/x-data-grid";
-import { toast } from "react-toastify";
 import DataGrid from "../../components/DataGrid";
+import { REQUEST_STATUS } from "../../utils/enums";
+import { getMatchs } from "../../../services/matchsServices";
+import { getCurrentUser } from "../../../services/authServices";
+import { getBetsByUser } from "../../../services/betsServices";
 
 type Props = {};
 
@@ -30,11 +28,20 @@ const Bet = (props: Props) => {
   const db = getFirestore(app);
   const navigate = useNavigate();
   const userCredential = useAppSelector((state) => state.auth.userCredential);
+  const dispatch = useAppDispatch();
   const role = useAppSelector((state) => state.auth.role);
-  const [matchs, setMatchs] = useState<any[]>([]);
-  const [bets, setBets] = useState<any[]>([]);
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  const getMatchsStatus = useAppSelector(
+    (state) => state.matchs.getMatchsStatus
+  );
+  const matchs = useAppSelector((state) => state.matchs.matchs);
+  const getCurrentUserStatus = useAppSelector(
+    (state) => state.auth.getCurrentUserStatus
+  );
+  const currentUser = useAppSelector((state) => state.auth.currentUser);
+  const getBetsByUserStatus = useAppSelector(
+    (state) => state.bets.getBetsByUserStatus
+  );
+  const betsByUser = useAppSelector((state) => state.bets.betsByUser);
 
   const columns: GridColDef<any[number]>[] = [
     {
@@ -139,51 +146,20 @@ const Bet = (props: Props) => {
 
   useEffect(() => {
     if (userCredential) {
-      fetchUser();
       fetchData();
     }
   }, [userCredential]);
 
-  const fetchUser = async () => {
-    setLoading(true);
-    const docSnap = await getDoc(doc(db, "users", userCredential.uid));
-
-    if (docSnap.exists()) {
-      setCurrentUser(docSnap.data());
-    } else {
-      toast.error("No such document!");
-    }
-    setLoading(false);
-  };
-
   const fetchData = async () => {
-    setLoading(true);
-    let querySnapshot = await getDocs(
-      query(collection(db, "matchs"), orderBy("time"))
-    );
-    let listMatchs: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const dataMatchs = doc.data();
-      listMatchs.push({
-        ...dataMatchs,
-        id: doc.id,
-      });
-    });
-    setMatchs(listMatchs);
-
-    querySnapshot = await getDocs(
-      query(collection(db, "bets"), where("user_id", "==", userCredential.uid))
-    );
-    let listBets: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const dataBets = doc.data();
-      listBets.push({
-        ...dataBets,
-        id: doc.id,
-      });
-    });
-    setBets(listBets);
-    setLoading(false);
+    if (getCurrentUserStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getCurrentUser({ db, userId: userCredential.uid }));
+    }
+    if (getMatchsStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getMatchs({ db }));
+    }
+    if (getBetsByUserStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getBetsByUser({ db, userId: userCredential.uid }));
+    }
   };
 
   const handleUpdateBet = async (match: any, bet: string) => {
@@ -192,31 +168,19 @@ const Bet = (props: Props) => {
       match_id: match.id,
       user_id: userCredential.uid,
     };
+    let item;
     if (match.bet_id) {
-      await updateDoc(doc(db, "bets", match.bet_id), updateMatch);
+      item = await updateDoc(doc(db, "bets", match.bet_id), updateMatch);
     } else {
-      await addDoc(collection(db, "bets"), updateMatch);
+      item = await addDoc(collection(db, "bets"), updateMatch);
     }
-    fetchData();
-  };
-
-  const updateUserBets = async (bets: any[]) => {
     const dataUser = { ...currentUser };
-    for (let i = 0; i < bets.length; i++) {
-      const bet = bets[i];
-      dataUser[bet.match_id] = {
-        bet: bet.bet,
-        bet_id: bet.id,
-      };
-    }
-
+    dataUser[match.id] = { bet, bet_id: item?.id ? item.id : match.bet_id };
     await updateDoc(doc(db, "users", userCredential.uid), dataUser);
+    dispatch(getBetsByUser({ db, userId: userCredential.uid }));
   };
 
   const getRows = (matchs: any[], bets: any[]) => {
-    if (userCredential) {
-      updateUserBets(bets);
-    }
     const matchBets: any = matchs
       .map((match) => {
         const datetime = moment(match.time.seconds * 1000);
@@ -240,7 +204,6 @@ const Bet = (props: Props) => {
         ...match,
         needDeposit: match.result && isLossedMatch(match),
       }));
-    let countDate = 0;
     return matchBets.map((match: any, index: number) => {
       if (
         index === 0 ||
@@ -255,6 +218,11 @@ const Bet = (props: Props) => {
     });
   };
 
+  const loading =
+    getMatchsStatus === REQUEST_STATUS.PENDING ||
+    getCurrentUserStatus === REQUEST_STATUS.PENDING ||
+    getBetsByUserStatus === REQUEST_STATUS.PENDING;
+
   return (
     <div>
       <div className="my-4">
@@ -262,7 +230,7 @@ const Bet = (props: Props) => {
           <h3>
             Total: &nbsp;{" "}
             {FormatCurrency(
-              getRows(matchs, bets)
+              getRows(matchs, betsByUser)
                 .filter((match: any) => match.needDeposit)
                 .map((match: any) => match.deposit)
                 .reduce((a: any, b: any) => a + b, 0)
@@ -273,7 +241,7 @@ const Bet = (props: Props) => {
       <DataGrid
         loading={loading}
         columns={columns}
-        rows={getRows(matchs, bets)}
+        rows={getRows(matchs, betsByUser)}
       />
       <div className="my-4">
         {role === "admin" && (

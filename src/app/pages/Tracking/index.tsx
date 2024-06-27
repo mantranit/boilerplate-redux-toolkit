@@ -11,21 +11,30 @@ import { GridColDef } from "@mui/x-data-grid";
 import { FormatCurrency, isLossedMatch } from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
-import { useAppSelector } from "../../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import { useNavigate } from "react-router-dom";
 import DataGrid from "../../components/DataGrid";
+import { REQUEST_STATUS } from "../../utils/enums";
+import { getMatchs } from "../../../services/matchsServices";
+import { getBets } from "../../../services/betsServices";
+import { getUsers } from "../../../services/authServices";
 
 type Props = {};
 
 const Tracking = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
+  const dispatch = useAppDispatch();
+  const getMatchsStatus = useAppSelector(
+    (state) => state.matchs.getMatchsStatus
+  );
+  const matchs = useAppSelector((state) => state.matchs.matchs);
+  const getBetsStatus = useAppSelector((state) => state.bets.getBetsStatus);
+  const bets = useAppSelector((state) => state.bets.bets);
   const role = useAppSelector((state) => state.auth.role);
   const navigate = useNavigate();
-  const [users, setUsers] = useState<any[]>([]);
-  const [matchs, setMatchs] = useState<any[]>([]);
-  const [bets, setBets] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const getUsersStatus = useAppSelector((state) => state.auth.getUsersStatus);
+  const users = useAppSelector((state) => state.auth.users);
 
   if (role !== "admin") {
     navigate("/leaderboard");
@@ -36,42 +45,15 @@ const Tracking = (props: Props) => {
   }, []);
 
   const fetchData = async () => {
-    setLoading(true);
-    let querySnapshot = await getDocs(query(collection(db, "users")));
-    let listUsers: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const dataUsers = doc.data();
-      listUsers.push({
-        ...dataUsers,
-        id: doc.id,
-      });
-    });
-    setUsers(listUsers);
-
-    querySnapshot = await getDocs(
-      query(collection(db, "matchs"), orderBy("time"))
-    );
-    let listMatchs: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const dataMatchs = doc.data();
-      listMatchs.push({
-        ...dataMatchs,
-        id: doc.id,
-      });
-    });
-    setMatchs(listMatchs);
-
-    querySnapshot = await getDocs(query(collection(db, "bets")));
-    let listBets: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const dataBets = doc.data();
-      listBets.push({
-        ...dataBets,
-        id: doc.id,
-      });
-    });
-    setBets(listBets);
-    setLoading(false);
+    if (getUsersStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getUsers({ db }));
+    }
+    if (getMatchsStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getMatchs({ db }));
+    }
+    if (getBetsStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getBets({ db }));
+    }
   };
 
   const getColumns = (matchs: any[]) => {
@@ -178,6 +160,11 @@ const Tracking = (props: Props) => {
       .sort((a, b) => b.totalDeposit - a.totalDeposit)
       .map((user, index) => ({ ...user, rank: index + 1 }));
   };
+
+  const loading =
+    getUsersStatus === REQUEST_STATUS.PENDING ||
+    getMatchsStatus === REQUEST_STATUS.PENDING ||
+    getBetsStatus === REQUEST_STATUS.PENDING;
 
   return (
     <div>

@@ -12,6 +12,7 @@ import { GridColDef } from "@mui/x-data-grid";
 import { FormatCurrency } from "../../utils";
 import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import { getDeposits } from "../../../services/betsServices";
+import { REQUEST_STATUS } from "../../utils/enums";
 
 const columns: GridColDef<any[number]>[] = [
   {
@@ -37,14 +38,18 @@ const Rule = (props: Props) => {
   );
   const deposits = useAppSelector((state) => state.bets.deposits);
   useEffect(() => {
-    if (getDepositsStatus === "idle") {
+    if (getDepositsStatus === REQUEST_STATUS.IDLE) {
       dispatch(getDeposits({ db }));
     }
   }, []);
 
   return (
     <div className="max-w-96 mx-auto">
-      <DataGrid columns={columns} rows={deposits} />
+      <DataGrid
+        loading={getDepositsStatus === REQUEST_STATUS.PENDING}
+        columns={columns}
+        rows={deposits}
+      />
     </div>
   );
 };

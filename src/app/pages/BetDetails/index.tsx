@@ -22,6 +22,7 @@ import moment from "moment";
 import { Link } from "@mui/material";
 import { toast } from "react-toastify";
 import { getDeposits } from "../../../services/betsServices";
+import { REQUEST_STATUS } from "../../utils/enums";
 
 type Props = {};
 
@@ -52,7 +53,7 @@ const BetDetails = (props: Props) => {
   }
 
   useEffect(() => {
-    if (getDepositsStatus === "idle") {
+    if (getDepositsStatus === REQUEST_STATUS.IDLE) {
       dispatch(getDeposits({ db }));
     }
     fetchData();

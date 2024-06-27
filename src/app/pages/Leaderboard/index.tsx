@@ -14,45 +14,34 @@ import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import moment from "moment";
 import DataGrid from "../../components/DataGrid";
+import { useAppDispatch, useAppSelector } from "../../../redux/store";
+import { REQUEST_STATUS } from "../../utils/enums";
+import { getMatchs } from "../../../services/matchsServices";
+import { getUsers } from "../../../services/authServices";
 
 type Props = {};
 
 const Leaderboard = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
-  const [users, setUsers] = useState<any[]>([]);
-  const [matchs, setMatchs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const getMatchsStatus = useAppSelector(
+    (state) => state.matchs.getMatchsStatus
+  );
+  const matchs = useAppSelector((state) => state.matchs.matchs);
+  const getUsersStatus = useAppSelector((state) => state.auth.getUsersStatus);
+  const users = useAppSelector((state) => state.auth.users);
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    setLoading(true);
-    let querySnapshot = await getDocs(query(collection(db, "users")));
-    let listUsers: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const dataUsers = doc.data();
-      listUsers.push({
-        ...dataUsers,
-        id: doc.id,
-      });
-    });
-    setUsers(listUsers);
-
-    querySnapshot = await getDocs(
-      query(collection(db, "matchs"), orderBy("time"))
-    );
-    let listMatchs: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const dataMatchs = doc.data();
-      listMatchs.push({
-        ...dataMatchs,
-        id: doc.id,
-      });
-    });
-    setMatchs(listMatchs);
-    setLoading(false);
+    if (getUsersStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getUsers({ db }));
+    }
+    if (getMatchsStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getMatchs({ db }));
+    }
   };
 
   const getColumns = (matchs: any[]) => {
@@ -175,7 +164,10 @@ const Leaderboard = (props: Props) => {
         </div>
       </div>
       <DataGrid
-        loading={loading}
+        loading={
+          getUsersStatus === REQUEST_STATUS.PENDING ||
+          getMatchsStatus === REQUEST_STATUS.PENDING
+        }
         columns={getColumns(matchs)}
         rows={getRows(users, matchs)}
       />
