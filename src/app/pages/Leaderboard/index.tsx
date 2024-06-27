@@ -18,6 +18,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import { REQUEST_STATUS } from "../../utils/enums";
 import { getMatchs } from "../../../services/matchsServices";
 import { getUsers } from "../../../services/authServices";
+import Button from "../../components/Button";
 
 type Props = {};
 
@@ -31,6 +32,8 @@ const Leaderboard = (props: Props) => {
   const matchs = useAppSelector((state) => state.matchs.matchs);
   const getUsersStatus = useAppSelector((state) => state.auth.getUsersStatus);
   const users = useAppSelector((state) => state.auth.users);
+  const [isFull, setFull] = useState(false);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -68,6 +71,9 @@ const Leaderboard = (props: Props) => {
       },
     ];
     for (let i = 1; i <= matchs.length; i++) {
+      if (!isFull && matchs[i - 1].deposit === 20000) {
+        continue;
+      }
       newColumns.push({
         field: `match-${i}`,
         align: "center",
@@ -152,7 +158,7 @@ const Leaderboard = (props: Props) => {
   return (
     <div>
       <div className="my-4">
-        <div>
+        <div className="flex items-center justify-between gap-5">
           <h3>
             Total: &nbsp;{" "}
             {FormatCurrency(
@@ -161,6 +167,11 @@ const Leaderboard = (props: Props) => {
                 .reduce((a: any, b: any) => a + b, 0)
             )}
           </h3>
+          <div>
+            <Button variant="contained" onClick={() => setFull(!isFull)}>
+              Toggle history
+            </Button>
+          </div>
         </div>
       </div>
       <DataGrid

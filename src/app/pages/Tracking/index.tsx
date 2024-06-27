@@ -18,6 +18,7 @@ import { REQUEST_STATUS } from "../../utils/enums";
 import { getMatchs } from "../../../services/matchsServices";
 import { getBets } from "../../../services/betsServices";
 import { getUsers } from "../../../services/authServices";
+import Button from "../../components/Button";
 
 type Props = {};
 
@@ -35,6 +36,7 @@ const Tracking = (props: Props) => {
   const navigate = useNavigate();
   const getUsersStatus = useAppSelector((state) => state.auth.getUsersStatus);
   const users = useAppSelector((state) => state.auth.users);
+  const [isFull, setFull] = useState(false);
 
   if (role !== "admin") {
     navigate("/leaderboard");
@@ -80,6 +82,9 @@ const Tracking = (props: Props) => {
       },
     ];
     for (let i = 1; i <= matchs.length; i++) {
+      if (!isFull && matchs[i - 1].deposit === 20000) {
+        continue;
+      }
       newColumns.push({
         field: `match-${i}`,
         align: "center",
@@ -169,7 +174,7 @@ const Tracking = (props: Props) => {
   return (
     <div>
       <div className="my-4">
-        <div>
+        <div className="flex items-center justify-between gap-5">
           <h3>
             Total: &nbsp;{" "}
             {FormatCurrency(
@@ -178,6 +183,11 @@ const Tracking = (props: Props) => {
                 .reduce((a: any, b: any) => a + b, 0)
             )}
           </h3>
+          <div>
+            <Button variant="contained" onClick={() => setFull(!isFull)}>
+              Toggle history
+            </Button>
+          </div>
         </div>
       </div>
       <DataGrid
