@@ -179,10 +179,11 @@ const Bet = (props: Props) => {
     dispatch(getBetsByUser({ db, userId: userCredential.uid }));
   };
 
-  const getRows = (matchs: any[], bets: any[]) => {
+  const getRows = (matchs: any[], bets: any[], sum = false) => {
     const matchBets: any = matchs
       .filter(
-        (match) => isFull || (isFull === false && match.deposit !== 20000)
+        (match) =>
+          sum || isFull || (isFull === false && match.deposit !== 20000)
       )
       .map((match, index) => {
         const datetime = moment(match.time.seconds * 1000);
@@ -233,7 +234,7 @@ const Bet = (props: Props) => {
           <h3>
             Total: &nbsp;{" "}
             {FormatCurrency(
-              getRows(matchs, betsByUser)
+              getRows(matchs, betsByUser, true)
                 .filter((match: any) => match.needDeposit)
                 .map((match: any) => match.deposit)
                 .reduce((a: any, b: any) => a + b, 0)
@@ -253,8 +254,6 @@ const Bet = (props: Props) => {
         loading={loading}
         columns={columns}
         rows={getRows(matchs, betsByUser)}
-        onFilterModelChange={console.log}
-        // filterModel={filterModel}
       />
       <div className="my-4">
         {role === "admin" && (
