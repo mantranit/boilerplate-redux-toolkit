@@ -180,6 +180,7 @@ const Bet = (props: Props) => {
   };
 
   const getRows = (matchs: any[], bets: any[], sum = false) => {
+    const groupMatchs = matchs.filter((match) => match.deposit === 20000);
     const matchBets: any = matchs
       .filter(
         (match) =>
@@ -193,7 +194,7 @@ const Bet = (props: Props) => {
           date: datetime.format("dddd, Do MMMM"),
           hour: datetime.format("HH:mm"),
           datetime,
-          index: index + (isFull ? 1 : 37),
+          index: index + 1 + (isFull ? 0 : groupMatchs.length),
         };
         if (userBet) {
           newMatch = {
