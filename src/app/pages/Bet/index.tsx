@@ -14,7 +14,7 @@ import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { FormatCurrency, isLossedMatch } from "../../utils";
-import { GridCellParams, GridColDef } from "@mui/x-data-grid";
+import { GridCellParams, GridColDef, GridFilterModel } from "@mui/x-data-grid";
 import DataGrid from "../../components/DataGrid";
 import { REQUEST_STATUS } from "../../utils/enums";
 import { getMatchs } from "../../../services/matchsServices";
@@ -42,17 +42,16 @@ const Bet = (props: Props) => {
     (state) => state.bets.getBetsByUserStatus
   );
   const betsByUser = useAppSelector((state) => state.bets.betsByUser);
+  const [isFull, setFull] = useState(false);
 
   const columns: GridColDef<any[number]>[] = [
     {
-      field: "id",
+      field: "index",
       headerName: "#",
       width: 20,
       cellClassName: (params: GridCellParams<any>) => {
         return "bg-white";
       },
-      renderCell: (index) =>
-        index.api.getRowIndexRelativeToVisibleRows(index.row.id) + 1,
     },
     {
       field: "date",
@@ -182,7 +181,10 @@ const Bet = (props: Props) => {
 
   const getRows = (matchs: any[], bets: any[]) => {
     const matchBets: any = matchs
-      .map((match) => {
+      .filter(
+        (match) => isFull || (isFull === false && match.deposit !== 20000)
+      )
+      .map((match, index) => {
         const datetime = moment(match.time.seconds * 1000);
         const userBet = bets.find((bet: any) => bet.match_id === match.id);
         let newMatch = {
@@ -190,6 +192,7 @@ const Bet = (props: Props) => {
           date: datetime.format("dddd, Do MMMM"),
           hour: datetime.format("HH:mm"),
           datetime,
+          index: index + (isFull ? 1 : 37),
         };
         if (userBet) {
           newMatch = {
@@ -226,7 +229,7 @@ const Bet = (props: Props) => {
   return (
     <div>
       <div className="my-4">
-        <div>
+        <div className="flex items-center justify-between gap-5">
           <h3>
             Total: &nbsp;{" "}
             {FormatCurrency(
@@ -236,12 +239,22 @@ const Bet = (props: Props) => {
                 .reduce((a: any, b: any) => a + b, 0)
             )}
           </h3>
+          <div>
+            <Button
+              variant={isFull ? "contained" : "outlined"}
+              onClick={() => setFull(!isFull)}
+            >
+              Toggle history
+            </Button>
+          </div>
         </div>
       </div>
       <DataGrid
         loading={loading}
         columns={columns}
         rows={getRows(matchs, betsByUser)}
+        onFilterModelChange={console.log}
+        // filterModel={filterModel}
       />
       <div className="my-4">
         {role === "admin" && (
