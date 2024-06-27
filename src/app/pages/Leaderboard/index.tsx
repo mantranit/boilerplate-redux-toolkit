@@ -168,7 +168,10 @@ const Leaderboard = (props: Props) => {
             )}
           </h3>
           <div>
-            <Button variant="contained" onClick={() => setFull(!isFull)}>
+            <Button
+              variant={isFull ? "contained" : "outlined"}
+              onClick={() => setFull(!isFull)}
+            >
               Toggle history
             </Button>
           </div>
