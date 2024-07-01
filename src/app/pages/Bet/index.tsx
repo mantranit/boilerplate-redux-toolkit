@@ -13,7 +13,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { FormatCurrency, isLossedMatch } from "../../utils";
+import { FormatCurrency, isDisplay, isLossedMatch } from "../../utils";
 import { GridCellParams, GridColDef } from "@mui/x-data-grid";
 import DataGrid from "../../components/DataGrid";
 import { REQUEST_STATUS } from "../../utils/enums";
@@ -196,20 +196,14 @@ const Bet = (props: Props) => {
     await updateDoc(doc(db, "users", userCredential.uid), dataUser);
   };
 
-  const isDisplay = (deposit: number) => {
-    const exist = deposits.find((obj: any) => obj.deposit === deposit);
-    return exist && exist.display;
-  };
-
   const getRows = (matchs: any[], bets: any[], sum = false) => {
     if (userCredential && sum) {
       updateUserBets(bets);
     }
-    const groupMatchs = matchs.filter((match) => isDisplay(match.deposit));
     const matchBets: any = matchs
       .filter(
         (match) =>
-          sum || isFull || (isFull === false && !isDisplay(match.deposit))
+          sum || isFull || (!isFull && isDisplay(deposits, match.deposit))
       )
       .map((match, index) => {
         const datetime = moment(match.time.seconds * 1000);
@@ -219,7 +213,7 @@ const Bet = (props: Props) => {
           date: datetime.format("dddd, Do MMMM"),
           hour: datetime.format("HH:mm"),
           datetime,
-          index: index + 1 + (isFull ? 0 : groupMatchs.length),
+          index: index + 1,
         };
         if (userBet) {
           newMatch = {

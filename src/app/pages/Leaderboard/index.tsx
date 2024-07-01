@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useFirebaseApp } from "../../contexts/FirebaseProvider";
 import { getFirestore } from "firebase/firestore";
 import { GridColDef } from "@mui/x-data-grid";
-import { FormatCurrency, isLossedMatch } from "../../utils";
+import { FormatCurrency, isDisplay, isLossedMatch } from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import moment from "moment";
@@ -12,6 +12,7 @@ import { REQUEST_STATUS } from "../../utils/enums";
 import { getMatchs } from "../../../services/matchsServices";
 import { getUsers } from "../../../services/authServices";
 import Button from "../../components/Button";
+import { getDeposits } from "../../../services/betsServices";
 
 type Props = {};
 
@@ -19,6 +20,10 @@ const Leaderboard = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
   const dispatch = useAppDispatch();
+  const getDepositsStatus = useAppSelector(
+    (state) => state.bets.getDepositsStatus
+  );
+  const deposits = useAppSelector((state) => state.bets.deposits);
   const getMatchsStatus = useAppSelector(
     (state) => state.matchs.getMatchsStatus
   );
@@ -32,6 +37,9 @@ const Leaderboard = (props: Props) => {
   }, []);
 
   const fetchData = async () => {
+    if (getDepositsStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getDeposits({ db }));
+    }
     if (getUsersStatus === REQUEST_STATUS.IDLE) {
       dispatch(getUsers({ db }));
     }
@@ -64,7 +72,7 @@ const Leaderboard = (props: Props) => {
       },
     ];
     for (let i = 1; i <= matchs.length; i++) {
-      if (!isFull && matchs[i - 1].deposit === 20000) {
+      if (!isFull && !isDisplay(deposits, matchs[i - 1].deposit)) {
         continue;
       }
       newColumns.push({

@@ -29,3 +29,8 @@ export const isLossedMatch = (match: any) => {
   }
   return false;
 };
+
+export const isDisplay = (deposits: any[], deposit: number) => {
+  const exist = deposits.find((obj: any) => obj.deposit === deposit);
+  return exist && exist.display;
+};
