@@ -15,6 +15,7 @@ const Rule = (props: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
   const dispatch = useAppDispatch();
+  const role = useAppSelector((state) => state.auth.role);
   const getDepositsStatus = useAppSelector(
     (state) => state.bets.getDepositsStatus
   );
@@ -33,21 +34,25 @@ const Rule = (props: Props) => {
     },
     {
       field: "display",
-      headerName: "Display",
+      headerName: role === "admin" ? "Display" : "",
+      hideable: true,
       renderCell: (params: GridRenderCellParams) => {
-        const { id, ...updateDeposit } = params.row;
-        return (
-          <Switch
-            checked={params.value}
-            onChange={async (event) => {
-              await updateDoc(doc(db, "deposits", params.row.id), {
-                ...updateDeposit,
-                display: event.target.checked,
-              });
-              dispatch(getDeposits({ db }));
-            }}
-          />
-        );
+        if (role === "admin") {
+          const { id, ...updateDeposit } = params.row;
+          return (
+            <Switch
+              checked={params.value}
+              onChange={async (event) => {
+                await updateDoc(doc(db, "deposits", params.row.id), {
+                  ...updateDeposit,
+                  display: event.target.checked,
+                });
+                dispatch(getDeposits({ db }));
+              }}
+            />
+          );
+        }
+        return <></>;
       },
     },
   ];
