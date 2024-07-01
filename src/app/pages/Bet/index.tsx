@@ -196,15 +196,20 @@ const Bet = (props: Props) => {
     await updateDoc(doc(db, "users", userCredential.uid), dataUser);
   };
 
+  const isDisplay = (deposit: number) => {
+    const exist = deposits.find((obj: any) => obj.deposit === deposit);
+    return exist && exist.display;
+  };
+
   const getRows = (matchs: any[], bets: any[], sum = false) => {
     if (userCredential && sum) {
       updateUserBets(bets);
     }
-    const groupMatchs = matchs.filter((match) => match.deposit === 20000);
+    const groupMatchs = matchs.filter((match) => isDisplay(match.deposit));
     const matchBets: any = matchs
       .filter(
         (match) =>
-          sum || isFull || (isFull === false && match.deposit !== 20000)
+          sum || isFull || (isFull === false && !isDisplay(match.deposit))
       )
       .map((match, index) => {
         const datetime = moment(match.time.seconds * 1000);

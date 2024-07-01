@@ -44,6 +44,7 @@ const Rule = (props: Props) => {
                 ...updateDeposit,
                 display: event.target.checked,
               });
+              dispatch(getDeposits({ db }));
             }}
           />
         );
