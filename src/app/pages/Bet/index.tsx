@@ -190,7 +190,7 @@ const Bet = (props: Props) => {
   };
 
   const getRows = (matchs: any[], bets: any[], sum = false) => {
-    if (userCredential) {
+    if (userCredential && sum) {
       updateUserBets(bets);
     }
     const groupMatchs = matchs.filter((match) => match.deposit === 20000);
