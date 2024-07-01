@@ -20,6 +20,7 @@ import { REQUEST_STATUS } from "../../utils/enums";
 import { getMatchs } from "../../../services/matchsServices";
 import { getCurrentUser } from "../../../services/authServices";
 import { getBetsByUser, getDeposits } from "../../../services/betsServices";
+import { updateBets } from "../../../redux/betsSlice";
 
 type Props = {};
 
@@ -180,6 +181,7 @@ const Bet = (props: Props) => {
     } else {
       item = await addDoc(collection(db, "bets"), updateMatch);
     }
+    dispatch(updateBets(updateMatch));
     dispatch(getBetsByUser({ db, userId: userCredential.uid }));
   };
 

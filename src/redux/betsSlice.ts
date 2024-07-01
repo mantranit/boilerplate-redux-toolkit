@@ -25,20 +25,23 @@ const betsSlice = createSlice({
   name: "bets",
   initialState,
   reducers: {
-    updateBet: (state, action) => {
-      const { match_id, bet: selected } = action.payload;
-      const bets = [...state.betsByUser];
-      const exists = bets.findIndex((bet) => bet.match_id === match_id);
+    updateBets: (state, action) => {
+      const { match_id, user_id, bet: selected } = action.payload;
+      const bets = [...state.bets];
+      const exists = bets.findIndex(
+        (bet) => bet.match_id === match_id && bet.user_id === user_id
+      );
       if (exists >= 0) {
         bets[exists].bet = selected;
       } else {
         bets.push({
           id: moment().format(),
           match_id,
+          user_id,
           bet: selected,
         });
       }
-      state.betsByUser = bets;
+      state.bets = bets;
     },
   },
   extraReducers(builder) {
@@ -77,6 +80,6 @@ const betsSlice = createSlice({
   },
 });
 
-export const { updateBet } = betsSlice.actions;
+export const { updateBets } = betsSlice.actions;
 
 export default betsSlice.reducer;
