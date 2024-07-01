@@ -173,9 +173,6 @@ const Bet = (props: Props) => {
     } else {
       item = await addDoc(collection(db, "bets"), updateMatch);
     }
-    const dataUser = { ...currentUser };
-    dataUser[match.id] = { bet, bet_id: item?.id ? item.id : match.bet_id };
-    await updateDoc(doc(db, "users", userCredential.uid), dataUser);
     dispatch(getBetsByUser({ db, userId: userCredential.uid }));
   };
 
