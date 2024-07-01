@@ -19,7 +19,7 @@ import DataGrid from "../../components/DataGrid";
 import { REQUEST_STATUS } from "../../utils/enums";
 import { getMatchs } from "../../../services/matchsServices";
 import { getCurrentUser } from "../../../services/authServices";
-import { getBetsByUser } from "../../../services/betsServices";
+import { getBetsByUser, getDeposits } from "../../../services/betsServices";
 
 type Props = {};
 
@@ -30,6 +30,10 @@ const Bet = (props: Props) => {
   const userCredential = useAppSelector((state) => state.auth.userCredential);
   const dispatch = useAppDispatch();
   const role = useAppSelector((state) => state.auth.role);
+  const getDepositsStatus = useAppSelector(
+    (state) => state.bets.getDepositsStatus
+  );
+  const deposits = useAppSelector((state) => state.bets.deposits);
   const getMatchsStatus = useAppSelector(
     (state) => state.matchs.getMatchsStatus
   );
@@ -150,6 +154,9 @@ const Bet = (props: Props) => {
   }, [userCredential]);
 
   const fetchData = async () => {
+    if (getDepositsStatus === REQUEST_STATUS.IDLE) {
+      dispatch(getDeposits({ db }));
+    }
     if (getCurrentUserStatus === REQUEST_STATUS.IDLE) {
       dispatch(getCurrentUser({ db, userId: userCredential.uid }));
     }
