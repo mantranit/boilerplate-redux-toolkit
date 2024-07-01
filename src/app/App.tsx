@@ -9,7 +9,6 @@ import Bet from "./pages/Bet";
 import BetDetails from "./pages/BetDetails";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-import Leaderboard from "./pages/Leaderboard";
 import Tracking from "./pages/Tracking";
 import Rule from "./pages/Rule";
 
@@ -39,7 +38,7 @@ export default function App() {
             },
             {
               path: "/leaderboard",
-              element: <Tracking />,
+              element: <Tracking isLeaderboard={true} />,
             },
             {
               path: "/tracking",

@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useFirebaseApp } from "../../contexts/FirebaseProvider";
-import {
-  collection,
-  getDocs,
-  getFirestore,
-  orderBy,
-  query,
-} from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import { GridColDef } from "@mui/x-data-grid";
 import { FormatCurrency, isLossedMatch } from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../redux/store";
-import { useNavigate } from "react-router-dom";
 import DataGrid from "../../components/DataGrid";
 import { REQUEST_STATUS } from "../../utils/enums";
 import { getMatchs } from "../../../services/matchsServices";
@@ -21,9 +14,11 @@ import { getUsers } from "../../../services/authServices";
 import Button from "../../components/Button";
 import moment from "moment";
 
-type Props = {};
+type Props = {
+  isLeaderboard?: boolean;
+};
 
-const Tracking = (props: Props) => {
+const Tracking = ({ isLeaderboard = false }: Props) => {
   const app = useFirebaseApp();
   const db = getFirestore(app);
   const dispatch = useAppDispatch();
@@ -33,15 +28,9 @@ const Tracking = (props: Props) => {
   const matchs = useAppSelector((state) => state.matchs.matchs);
   const getBetsStatus = useAppSelector((state) => state.bets.getBetsStatus);
   const bets = useAppSelector((state) => state.bets.bets);
-  const role = useAppSelector((state) => state.auth.role);
-  const navigate = useNavigate();
   const getUsersStatus = useAppSelector((state) => state.auth.getUsersStatus);
   const users = useAppSelector((state) => state.auth.users);
   const [isFull, setFull] = useState(false);
-
-  if (role !== "admin") {
-    navigate("/leaderboard");
-  }
 
   useEffect(() => {
     fetchData();
@@ -99,7 +88,7 @@ const Tracking = (props: Props) => {
           const matchBet = params.row.matchBets[i - 1];
           if (!matchBet.result) {
             if (
-              role === "admin" ||
+              !isLeaderboard ||
               (matchBet.bet &&
                 moment().isAfter(moment(matchBet.time.seconds * 1000)))
             ) {
