@@ -14,7 +14,7 @@ import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { FormatCurrency, isLossedMatch } from "../../utils";
-import { GridCellParams, GridColDef, GridFilterModel } from "@mui/x-data-grid";
+import { GridCellParams, GridColDef } from "@mui/x-data-grid";
 import DataGrid from "../../components/DataGrid";
 import { REQUEST_STATUS } from "../../utils/enums";
 import { getMatchs } from "../../../services/matchsServices";
@@ -176,7 +176,23 @@ const Bet = (props: Props) => {
     dispatch(getBetsByUser({ db, userId: userCredential.uid }));
   };
 
+  const updateUserBets = async (bets: any[]) => {
+    const dataUser = { ...currentUser };
+    for (let i = 0; i < bets.length; i++) {
+      const bet = bets[i];
+      dataUser[bet.match_id] = {
+        bet: bet.bet,
+        bet_id: bet.id,
+      };
+    }
+
+    await updateDoc(doc(db, "users", userCredential.uid), dataUser);
+  };
+
   const getRows = (matchs: any[], bets: any[], sum = false) => {
+    if (userCredential) {
+      updateUserBets(bets);
+    }
     const groupMatchs = matchs.filter((match) => match.deposit === 20000);
     const matchBets: any = matchs
       .filter(
