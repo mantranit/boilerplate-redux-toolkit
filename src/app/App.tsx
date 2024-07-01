@@ -39,7 +39,7 @@ export default function App() {
             },
             {
               path: "/leaderboard",
-              element: <Leaderboard />,
+              element: <Tracking />,
             },
             {
               path: "/tracking",

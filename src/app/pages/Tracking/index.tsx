@@ -19,6 +19,7 @@ import { getMatchs } from "../../../services/matchsServices";
 import { getBets } from "../../../services/betsServices";
 import { getUsers } from "../../../services/authServices";
 import Button from "../../components/Button";
+import moment from "moment";
 
 type Props = {};
 
@@ -97,18 +98,22 @@ const Tracking = (props: Props) => {
         renderCell: (params) => {
           const matchBet = params.row.matchBets[i - 1];
           if (!matchBet.result) {
-            if (!matchBet.bet) {
-              return <></>;
+            if (
+              role === "admin" ||
+              (matchBet.bet &&
+                moment().isAfter(moment(matchBet.time.seconds * 1000)))
+            ) {
+              return (
+                <Tooltip title={params.row.displayName}>
+                  {matchBet.bet === "homeName" ? (
+                    <span>{matchBet.homeName}</span>
+                  ) : (
+                    <span>{matchBet.awayName}</span>
+                  )}
+                </Tooltip>
+              );
             }
-            return (
-              <Tooltip title={params.row.displayName}>
-                {matchBet.bet === "homeName" ? (
-                  <span>{matchBet.homeName}</span>
-                ) : (
-                  <span>{matchBet.awayName}</span>
-                )}
-              </Tooltip>
-            );
+            return <></>;
           }
           return (
             <Tooltip title={params.row.displayName}>
