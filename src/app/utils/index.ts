@@ -34,3 +34,8 @@ export const isDisplay = (deposits: any[], deposit: number) => {
   const exist = deposits.find((obj: any) => obj.deposit === deposit);
   return exist && exist.display;
 };
+
+export const hasHistory = (deposits: any[]) => {
+  const exist = deposits.find((obj: any) => !obj.display);
+  return !!exist;
+};

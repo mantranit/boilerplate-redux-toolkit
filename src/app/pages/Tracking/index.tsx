@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useFirebaseApp } from "../../contexts/FirebaseProvider";
 import { getFirestore } from "firebase/firestore";
 import { GridColDef } from "@mui/x-data-grid";
-import { FormatCurrency, isDisplay, isLossedMatch } from "../../utils";
+import {
+  FormatCurrency,
+  hasHistory,
+  isDisplay,
+  isLossedMatch,
+} from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../redux/store";
@@ -185,12 +190,14 @@ const Tracking = ({ isLeaderboard = false }: Props) => {
             )}
           </h3>
           <div>
-            <Button
-              variant={isFull ? "contained" : "outlined"}
-              onClick={() => setFull(!isFull)}
-            >
-              Toggle history
-            </Button>
+            {hasHistory(deposits) && (
+              <Button
+                variant={isFull ? "contained" : "outlined"}
+                onClick={() => setFull(!isFull)}
+              >
+                Toggle history
+              </Button>
+            )}
           </div>
         </div>
       </div>

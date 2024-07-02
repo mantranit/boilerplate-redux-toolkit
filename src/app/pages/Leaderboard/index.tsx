@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useFirebaseApp } from "../../contexts/FirebaseProvider";
 import { getFirestore } from "firebase/firestore";
 import { GridColDef } from "@mui/x-data-grid";
-import { FormatCurrency, isDisplay, isLossedMatch } from "../../utils";
+import {
+  FormatCurrency,
+  hasHistory,
+  isDisplay,
+  isLossedMatch,
+} from "../../utils";
 import { Check, Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import moment from "moment";
@@ -169,12 +174,14 @@ const Leaderboard = (props: Props) => {
             )}
           </h3>
           <div>
-            <Button
-              variant={isFull ? "contained" : "outlined"}
-              onClick={() => setFull(!isFull)}
-            >
-              Toggle history
-            </Button>
+            {hasHistory(deposits) && (
+              <Button
+                variant={isFull ? "contained" : "outlined"}
+                onClick={() => setFull(!isFull)}
+              >
+                Toggle history
+              </Button>
+            )}
           </div>
         </div>
       </div>

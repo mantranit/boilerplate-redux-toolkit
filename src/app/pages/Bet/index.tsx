@@ -13,7 +13,12 @@ import { useAppDispatch, useAppSelector } from "../../../redux/store";
 import Button from "../../components/Button";
 import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { FormatCurrency, isDisplay, isLossedMatch } from "../../utils";
+import {
+  FormatCurrency,
+  hasHistory,
+  isDisplay,
+  isLossedMatch,
+} from "../../utils";
 import { GridCellParams, GridColDef } from "@mui/x-data-grid";
 import DataGrid from "../../components/DataGrid";
 import { REQUEST_STATUS } from "../../utils/enums";
@@ -263,12 +268,14 @@ const Bet = (props: Props) => {
             )}
           </h3>
           <div>
-            <Button
-              variant={isFull ? "contained" : "outlined"}
-              onClick={() => setFull(!isFull)}
-            >
-              Toggle history
-            </Button>
+            {hasHistory(deposits) && (
+              <Button
+                variant={isFull ? "contained" : "outlined"}
+                onClick={() => setFull(!isFull)}
+              >
+                Toggle history
+              </Button>
+            )}
           </div>
         </div>
       </div>
