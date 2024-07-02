@@ -25,7 +25,7 @@ const Rule = (props: Props) => {
     {
       field: "round",
       headerName: "",
-      width: 200,
+      width: 180,
     },
     {
       field: "deposit",
