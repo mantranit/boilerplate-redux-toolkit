@@ -45,7 +45,7 @@ const BetDetails = (props: Props) => {
   );
   const deposits = useAppSelector((state) => state.bets.deposits);
   const { match_id } = useParams();
-  const { control, handleSubmit, setValue, watch, reset } = useForm({
+  const { control, handleSubmit, setValue, watch, reset, getValues } = useForm({
     defaultValues: {
       homeName: "",
       awayName: "",
@@ -114,46 +114,52 @@ const BetDetails = (props: Props) => {
     }
     navigate("/");
   };
+
+  const canDelete =
+    match_id && role === "admin" && moment().isBefore(getValues("time"));
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex justify-between items-center gap-5">
         <h2>{!!match_id ? "Edit" : "Add"} a Match</h2>
-        {match_id && role === "admin" && (
-          <Button variant="contained" onClick={() => setOpen(true)}>
-            Delete
-          </Button>
+        {canDelete && (
+          <>
+            <Button variant="contained" onClick={() => setOpen(true)}>
+              Delete
+            </Button>
+            <Dialog
+              open={open}
+              onClose={handleCloseDelete}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">Delete a Match</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure to delete this match?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions className="justify-center gap-2 pb-5">
+                <Button
+                  variant="contained"
+                  onClick={handleAgreeDelete}
+                  autoFocus
+                  className="w-24"
+                >
+                  Agree
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={handleCloseDelete}
+                  className="w-24"
+                >
+                  Disagree
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </>
         )}
       </div>
-      <Dialog
-        open={open}
-        onClose={handleCloseDelete}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Delete a Match</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure to delete this match?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions className="justify-center gap-2 pb-5">
-          <Button
-            variant="contained"
-            onClick={handleAgreeDelete}
-            autoFocus
-            className="w-24"
-          >
-            Agree
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={handleCloseDelete}
-            className="w-24"
-          >
-            Disagree
-          </Button>
-        </DialogActions>
-      </Dialog>
       <form onSubmit={handleSubmit(handleOnSuccess)}>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col sm:flex-row gap-5">
