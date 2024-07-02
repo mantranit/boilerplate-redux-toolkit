@@ -203,10 +203,6 @@ const Bet = (props: Props) => {
       updateUserBets(bets);
     }
     const matchBets: any = matchs
-      .filter(
-        (match) =>
-          sum || isFull || (!isFull && isDisplay(deposits, match.deposit))
-      )
       .map((match, index) => {
         const datetime = moment(match.time.seconds * 1000);
         const userBet = bets.find((bet: any) => bet.match_id === match.id);
@@ -226,6 +222,10 @@ const Bet = (props: Props) => {
         }
         return newMatch;
       })
+      .filter(
+        (match) =>
+          sum || isFull || (!isFull && isDisplay(deposits, match.deposit))
+      )
       .map((match) => ({
         ...match,
         needDeposit: match.result && isLossedMatch(match),
