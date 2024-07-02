@@ -87,13 +87,15 @@ const AuthLayout = (props: Props) => {
 
             <Box sx={{ flexGrow: 1, paddingLeft: 2, display: "flex" }}>
               <Button
-                onClick={() => navigate("/")}
+                component={Link}
+                href="/"
                 sx={{ my: 2, color: "white", display: "block" }}
               >
                 Home
               </Button>
               <Button
-                onClick={() => navigate("/rule")}
+                component={Link}
+                href="/rule"
                 sx={{
                   my: 2,
                   color: "white",
@@ -103,14 +105,16 @@ const AuthLayout = (props: Props) => {
                 Rule
               </Button>
               <Button
-                onClick={() => navigate("/leaderboard")}
+                component={Link}
+                href="/leaderboard"
                 sx={{ my: 2, color: "white", display: "block" }}
               >
                 Leaderboard
               </Button>
               {role === "admin" && (
                 <Button
-                  onClick={() => navigate("/tracking")}
+                  component={Link}
+                  href="/tracking"
                   sx={{
                     my: 2,
                     color: "white",
