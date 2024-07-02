@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -19,7 +20,14 @@ import {
 import { useFirebaseApp } from "../../contexts/FirebaseProvider";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import moment from "moment";
-import { Link } from "@mui/material";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Link,
+} from "@mui/material";
 import { toast } from "react-toastify";
 import { getDeposits } from "../../../services/betsServices";
 import { REQUEST_STATUS } from "../../utils/enums";
@@ -47,6 +55,7 @@ const BetDetails = (props: Props) => {
       result: "",
     },
   });
+  const [open, setOpen] = useState(false);
 
   if (role !== "admin") {
     navigate("/leaderboard");
@@ -80,6 +89,17 @@ const BetDetails = (props: Props) => {
     }
   };
 
+  const handleCloseDelete = () => {
+    setOpen(false);
+  };
+
+  const handleAgreeDelete = async () => {
+    if (match_id) {
+      await deleteDoc(doc(db, "matchs", match_id));
+      setOpen(false);
+    }
+  };
+
   const handleOnSuccess = async (data: any) => {
     const time = Timestamp.fromDate(new Date(data.time));
     const payload = {
@@ -96,7 +116,44 @@ const BetDetails = (props: Props) => {
   };
   return (
     <div className="max-w-3xl mx-auto">
-      <h2>{!!match_id ? "Edit" : "Add"} a Match</h2>
+      <div className="flex justify-between items-center gap-5">
+        <h2>{!!match_id ? "Edit" : "Add"} a Match</h2>
+        {match_id && role === "admin" && (
+          <Button variant="contained" onClick={() => setOpen(true)}>
+            Delete
+          </Button>
+        )}
+      </div>
+      <Dialog
+        open={open}
+        onClose={handleCloseDelete}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Delete a Match</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure to delete this match?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions className="justify-center gap-2 pb-5">
+          <Button
+            variant="contained"
+            onClick={handleAgreeDelete}
+            autoFocus
+            className="w-24"
+          >
+            Agree
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={handleCloseDelete}
+            className="w-24"
+          >
+            Disagree
+          </Button>
+        </DialogActions>
+      </Dialog>
       <form onSubmit={handleSubmit(handleOnSuccess)}>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col sm:flex-row gap-5">
