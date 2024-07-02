@@ -12,6 +12,8 @@ import { setRole, setUserCredential } from "../../../redux/authSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { NavigateNext } from "@mui/icons-material";
+import { Link } from "@mui/material";
 
 type Props = {};
 
@@ -76,7 +78,9 @@ const Login = (props: Props) => {
             <Button type="submit" variant="contained">
               Login
             </Button>
-            <Button onClick={() => navigate("/register")}>Register</Button>
+            <Button component={Link} href="/register">
+              Register <NavigateNext />
+            </Button>
           </div>
         </div>
       </form>

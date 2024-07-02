@@ -271,7 +271,7 @@ const Bet = (props: Props) => {
             {hasHistory(deposits) && (
               <Button
                 variant={isFull ? "contained" : "outlined"}
-                onClick={() => setFull(!isFull)}
+                onClick={() => setFull((isFull) => !isFull)}
               >
                 Toggle history
               </Button>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import TextField from "../../components/TextField";
 import {
   createUserWithEmailAndPassword,
@@ -15,6 +15,8 @@ import Button from "../../components/Button";
 import { jwtDecode } from "jwt-decode";
 import { useFirebaseApp } from "../../contexts/FirebaseProvider";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { IconButton, InputAdornment, Link } from "@mui/material";
+import { NavigateNext, Visibility, VisibilityOff } from "@mui/icons-material";
 
 type Props = {};
 
@@ -23,6 +25,14 @@ const Register = (props: Props) => {
   const db = getFirestore(app);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
   const { control, handleSubmit } = useForm({
     defaultValues: {
       email: "",
@@ -89,15 +99,31 @@ const Register = (props: Props) => {
             rules={{
               required: "This field is required.",
             }}
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             label="Password"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <div className="flex gap-5">
             <Button type="submit" variant="contained">
               Register
             </Button>
-            <Button onClick={() => navigate("/login")}>Login</Button>
+            <Button component={Link} href="/login">
+              Login <NavigateNext />
+            </Button>
           </div>
         </div>
       </form>
